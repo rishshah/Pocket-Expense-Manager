@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -86,7 +85,8 @@ public class LoginActivity extends Activity {
     protected void onDriveClientReady(){
         Toast.makeText(getApplicationContext(), "Sign In Successful", Toast.LENGTH_SHORT).show();
         mProgressBar.setVisibility(View.GONE);
-//        startActivity(new Intent());
+        Intent intent = new Intent(this, HomeActivity.class);
+        startActivityForResult(intent, 0);
     };
 
     /**

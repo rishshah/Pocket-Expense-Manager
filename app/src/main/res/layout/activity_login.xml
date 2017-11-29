@@ -34,19 +34,4 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="41dp" />
 
-
-    <!--<Button-->
-        <!--android:id="@+id/sign_in"-->
-        <!--android:layout_width="200dp"-->
-        <!--android:layout_height="46dp"-->
-        <!--android:background="@color/colorPrimary"-->
-        <!--android:elevation="0dp"-->
-        <!--android:shadowColor="@color/colorDark"-->
-        <!--android:text="Google Sign In"-->
-        <!--android:textAlignment="center"-->
-        <!--android:textColor="@color/colorTextLight"-->
-        <!--android:layout_below="@+id/logo"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:layout_marginTop="15dp" />-->
-
 </RelativeLayout>
