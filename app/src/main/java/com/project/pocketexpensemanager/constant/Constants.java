@@ -1,4 +1,4 @@
-package com.project.pocketexpensemanager.constants;
+package com.project.pocketexpensemanager.constant;
 
 public class Constants {
     /**

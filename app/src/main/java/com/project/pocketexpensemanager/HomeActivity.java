@@ -92,37 +92,6 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         return true;
     }
 
-    private void createFolder() {
-        getDriveResourceClient()
-                .getRootFolder()
-                .continueWithTask(new Continuation<DriveFolder, Task<DriveFolder>>() {
-                    @Override
-                    public Task<DriveFolder> then(@NonNull Task<DriveFolder> task)
-                            throws Exception {
-                        DriveFolder parentFolder = task.getResult();
-                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                                .setTitle("ExpenseData")
-                                .setMimeType(DriveFolder.MIME_TYPE)
-                                .setStarred(true)
-                                .build();
-                        return getDriveResourceClient().createFolder(parentFolder, changeSet);
-                    }
-                })
-                .addOnSuccessListener(this,
-                        new OnSuccessListener<DriveFolder>() {
-                            @Override
-                            public void onSuccess(DriveFolder driveFolder) {
-                                showMessage("RootFolder created");
-                            }
-                        })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        showMessage("Unable to create RootFolder");
-                    }
-                });
-    }
-
     // [START create_file_in_appfolder]
     private void createFileInAppFolder() {
         final Task<DriveFolder> appFolderTask = getDriveResourceClient().getAppFolder();
@@ -163,6 +132,48 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
 
     @Override
     public void onDriveClientReady() {
-        createFolder();
+        createFile();
+    }
+
+    private void createFile() {
+        // [START create_file]
+        final Task<DriveFolder> rootFolderTask = getDriveResourceClient().getRootFolder();
+        final Task<DriveContents> createContentsTask = getDriveResourceClient().createContents();
+        Tasks.whenAll(rootFolderTask, createContentsTask)
+                .continueWithTask(new Continuation<Void, Task<DriveFile>>() {
+                    @Override
+                    public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
+                        DriveFolder parent = rootFolderTask.getResult();
+                        DriveContents contents = createContentsTask.getResult();
+                        OutputStream outputStream = contents.getOutputStream();
+                        try (Writer writer = new OutputStreamWriter(outputStream)) {
+                            writer.write("Hello World!");
+                        }
+
+                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                                .setTitle("HelloWorld.txt")
+                                .setMimeType("text/plain")
+                                .setStarred(true)
+                                .build();
+
+                        return getDriveResourceClient().createFile(parent, changeSet, contents);
+                    }
+                })
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<DriveFile>() {
+                            @Override
+                            public void onSuccess(DriveFile driveFile) {
+                                showMessage("file created");
+                                finish();
+                            }
+                        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        showMessage("failed to create file");
+                        finish();
+                    }
+                });
+        // [END create_file]
     }
 }

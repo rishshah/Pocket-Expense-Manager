@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.Task;
-import com.project.pocketexpensemanager.constants.Constants;
+import com.project.pocketexpensemanager.constant.Constants;
 
 public class LoginActivity extends DriveBase {
     @Override
