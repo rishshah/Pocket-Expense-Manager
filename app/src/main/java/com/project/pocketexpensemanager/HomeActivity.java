@@ -1,9 +1,10 @@
 package com.project.pocketexpensemanager;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -24,13 +25,25 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.project.pocketexpensemanager.fragment.CreateExpense;
+import com.project.pocketexpensemanager.fragment.SeeCategory;
+import com.project.pocketexpensemanager.fragment.SeeExpenses;
+import com.project.pocketexpensemanager.fragment.communication.Display;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 
-public class HomeActivity extends DriveBase implements NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends DriveBase implements NavigationView.OnNavigationItemSelectedListener, Display {
+    public static final int CREATE_EXPENSE = 1;
+    public static final int CREATE_TRANSFER = 2;
+    public static final int CREATE_CATEGORY = 3;
+    public static final int CREATE_RESERVE = 4;
+    public static final int SEE_SUMMARY = 5;
+    public static final int SEE_CATEGORY = 6;
+    public static final int SEE_EXPENSES = 7;
+    public static final int SEE_RESERVE = 8;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,28 +52,55 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("My Expenses");
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Start new fragment to take in the expense", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        displayFragment(SEE_EXPENSES);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        setProgressBar((ProgressBar) findViewById(R.id.progress_bar_home));
 
         setDriveResourceClient(Drive.getDriveResourceClient(this, GoogleSignIn.getLastSignedInAccount(this)));
         onDriveClientReady();
+    }
+
+    @Override
+    public void displayFragment(int action) {
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Fragment fragment = null;
+        switch (action) {
+            case SEE_SUMMARY:
+                break;
+            case SEE_EXPENSES:
+                getSupportActionBar().setTitle("Expenses");
+                fragment = new SeeExpenses();
+                break;
+            case SEE_RESERVE:
+                break;
+            case SEE_CATEGORY:
+                getSupportActionBar().setTitle("Existing Categories");
+                fragment = new SeeCategory();
+                break;
+            case CREATE_EXPENSE:
+                getSupportActionBar().setTitle("New Expense");
+                fragment = new CreateExpense();
+                break;
+            case CREATE_TRANSFER:
+                break;
+            case CREATE_CATEGORY:
+                break;
+            case CREATE_RESERVE:
+                break;
+        }
+        if (fragment != null) {
+            fragmentTransaction.replace(R.id.fragment_container, fragment).commit();
+        } else {
+            showMessage("Failed to load fragment");
+        }
     }
 
     @Override
@@ -84,6 +124,7 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
             // New Fragment
         } else if (id == R.id.nav_category) {
             // New Fragment
+            displayFragment(SEE_CATEGORY);
         } else if (id == R.id.nav_settings) {
             // New Fragment
         }
@@ -92,14 +133,13 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         return true;
     }
 
-    // [START create_file_in_appfolder]
     private void createFileInAppFolder() {
         final Task<DriveFolder> appFolderTask = getDriveResourceClient().getAppFolder();
         final Task<DriveContents> createContentsTask = getDriveResourceClient().createContents();
         Tasks.whenAll(appFolderTask, createContentsTask)
                 .continueWithTask(new Continuation<Void, Task<DriveFile>>() {
                     @Override
-                    public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
+                    public Task<DriveFile> then(Task<Void> task) throws Exception {
                         DriveFolder parent = appFolderTask.getResult();
                         DriveContents contents = createContentsTask.getResult();
                         OutputStream outputStream = contents.getOutputStream();
@@ -124,7 +164,7 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
                     @Override
-                    public void onFailure(@NonNull Exception e) {
+                    public void onFailure(Exception e) {
                         showMessage("Unable to create file");
                     }
                 });
@@ -133,6 +173,7 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
     @Override
     public void onDriveClientReady() {
         createFile();
+        createFileInAppFolder();
     }
 
     private void createFile() {
@@ -142,7 +183,7 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         Tasks.whenAll(rootFolderTask, createContentsTask)
                 .continueWithTask(new Continuation<Void, Task<DriveFile>>() {
                     @Override
-                    public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
+                    public Task<DriveFile> then(Task<Void> task) throws Exception {
                         DriveFolder parent = rootFolderTask.getResult();
                         DriveContents contents = createContentsTask.getResult();
                         OutputStream outputStream = contents.getOutputStream();
@@ -164,14 +205,12 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
                             @Override
                             public void onSuccess(DriveFile driveFile) {
                                 showMessage("file created");
-                                finish();
                             }
                         })
                 .addOnFailureListener(this, new OnFailureListener() {
                     @Override
-                    public void onFailure(@NonNull Exception e) {
+                    public void onFailure(Exception e) {
                         showMessage("failed to create file");
-                        finish();
                     }
                 });
         // [END create_file]

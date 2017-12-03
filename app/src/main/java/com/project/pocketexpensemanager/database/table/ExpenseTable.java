@@ -6,27 +6,34 @@ import android.util.Log;
 
 public class ExpenseTable implements BaseColumns{
 
-    private static final String TABLE_NAME = "reserve";
+    public static final String TABLE_NAME = "expense";
+    public static final String COLUMN_DATE = "date";
+    public static final String COLUMN_CATEGORY = "category";
+    public static final String COLUMN_DESCRIPTION  = "description";
+    public static final String COLUMN_AMOUNT  = "amount";
+    public static final String COLUMN_MOP  = "method_of_payment";
 
     // Database creation SQL statement
     private static final String TABLE_CREATE = "create table " + TABLE_NAME + " (" +
-            "date DATETIME NOT NULL, " +
-            "category VARCHAR(20) NOT NULL, " +
-            "description TEXT, " +
-            "amount FLOAT NOT NULL," +
-            "method_of_payment VARCHAR(20) NOT NULL," +
-            "FOREIGN KEY(category) REFERENCES category(type)," +
-            "FOREIGN KEY(method_of_payment) REFERENCES reserve(type)" +
-            ")";
+            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            COLUMN_DATE + " DATETIME, " +
+            COLUMN_CATEGORY + " VARCHAR(20), " +
+            COLUMN_DESCRIPTION + " TEXT, " +
+            COLUMN_AMOUNT + " FLOAT," +
+            COLUMN_MOP + " VARCHAR(20)," +
+            "FOREIGN KEY("+ COLUMN_CATEGORY +") REFERENCES " + CategoryTable.TABLE_NAME + "(" + CategoryTable.COLUMN_TYPE + ")," +
+            "FOREIGN KEY("+ COLUMN_MOP +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ")" +
+            ");";
 
 
     public static void onCreate(SQLiteDatabase database) {
         database.execSQL(TABLE_CREATE);
+        Log.e(TABLE_NAME, TABLE_CREATE);
     }
 
     public static void onUpgrade(SQLiteDatabase database, int oldVersion,
                                  int newVersion) {
-        Log.w(TABLE_NAME + " :", "Upgrading database from version "
+        Log.e(TABLE_NAME + " :", "Upgrading database from version "
                 + oldVersion + " to " + newVersion
                 + ", which will destroy all old data");
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME );
