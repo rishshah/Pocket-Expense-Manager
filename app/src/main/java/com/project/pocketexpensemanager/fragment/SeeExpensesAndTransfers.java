@@ -5,7 +5,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -13,7 +16,7 @@ import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
-public class SeeExpenses extends Fragment {
+public class SeeExpensesAndTransfers extends Fragment {
 
     private Display mDisplay;
     @Nullable
@@ -21,6 +24,7 @@ public class SeeExpenses extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.see_expense, container, false);
 
+        // TODO Show list of expenses and transfer
 //        DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
 //        SQLiteDatabase mDb = dbHelper.getWritableDatabase();
 //        int[] adapterRowViews=new int[]{android.R.id.text1};
@@ -35,12 +39,32 @@ public class SeeExpenses extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDisplay.displayFragment(HomeActivity.CREATE_EXPENSE);
+                view.showContextMenu();
             }
         });
 
+        registerForContextMenu(fab);
 
         return view;
+    }
+
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.create_transaction, menu);
+    }
+
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.item_expense:
+                mDisplay.displayFragment(HomeActivity.CREATE_EXPENSE);
+                return true;
+            case R.id.item_transfer:
+                mDisplay.displayFragment(HomeActivity.CREATE_TRANSFER);
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override

@@ -4,15 +4,12 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.ProgressBar;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.drive.Drive;
@@ -26,8 +23,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.project.pocketexpensemanager.fragment.CreateExpense;
+import com.project.pocketexpensemanager.fragment.CreateTransfer;
 import com.project.pocketexpensemanager.fragment.SeeCategory;
-import com.project.pocketexpensemanager.fragment.SeeExpenses;
+import com.project.pocketexpensemanager.fragment.SeeExpensesAndTransfers;
+import com.project.pocketexpensemanager.fragment.SeeReserve;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
 import java.io.OutputStream;
@@ -38,11 +37,9 @@ import java.io.Writer;
 public class HomeActivity extends DriveBase implements NavigationView.OnNavigationItemSelectedListener, Display {
     public static final int CREATE_EXPENSE = 1;
     public static final int CREATE_TRANSFER = 2;
-    public static final int CREATE_CATEGORY = 3;
-    public static final int CREATE_RESERVE = 4;
     public static final int SEE_SUMMARY = 5;
     public static final int SEE_CATEGORY = 6;
-    public static final int SEE_EXPENSES = 7;
+    public static final int SEE_TRANSACTIONS = 7;
     public static final int SEE_RESERVE = 8;
 
     @Override
@@ -52,7 +49,7 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("My Expenses");
-        displayFragment(SEE_EXPENSES);
+        displayFragment(SEE_TRANSACTIONS);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -75,11 +72,13 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         switch (action) {
             case SEE_SUMMARY:
                 break;
-            case SEE_EXPENSES:
-                getSupportActionBar().setTitle("Expenses");
-                fragment = new SeeExpenses();
+            case SEE_TRANSACTIONS:
+                getSupportActionBar().setTitle("Recent Activities");
+                fragment = new SeeExpensesAndTransfers();
                 break;
             case SEE_RESERVE:
+                getSupportActionBar().setTitle("Existing Reserves");
+                fragment = new SeeReserve();
                 break;
             case SEE_CATEGORY:
                 getSupportActionBar().setTitle("Existing Categories");
@@ -90,16 +89,14 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
                 fragment = new CreateExpense();
                 break;
             case CREATE_TRANSFER:
-                break;
-            case CREATE_CATEGORY:
-                break;
-            case CREATE_RESERVE:
+                getSupportActionBar().setTitle("New Transfer");
+                fragment = new CreateTransfer();
                 break;
         }
         if (fragment != null) {
             fragmentTransaction.replace(R.id.fragment_container, fragment).commit();
         } else {
-            showMessage("Failed to load fragment");
+            showMessage("Work in progress...");
         }
     }
 
@@ -121,12 +118,16 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         int id = item.getItemId();
 
         if (id == R.id.nav_summary) {
-            // New Fragment
-        } else if (id == R.id.nav_category) {
-            // New Fragment
+            displayFragment(SEE_SUMMARY);
+        }
+        else if (id == R.id.nav_category) {
             displayFragment(SEE_CATEGORY);
-        } else if (id == R.id.nav_settings) {
-            // New Fragment
+        }
+        else if (id == R.id.nav_reserve) {
+            displayFragment(SEE_RESERVE);
+        }
+        else if (id == R.id.nav_settings) {
+            //TODO Settings page
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

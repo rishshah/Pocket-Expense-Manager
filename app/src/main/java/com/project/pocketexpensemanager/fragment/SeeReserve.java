@@ -19,33 +19,33 @@ import android.widget.SimpleCursorAdapter;
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
-import com.project.pocketexpensemanager.database.table.CategoryTable;
+import com.project.pocketexpensemanager.database.table.ReserveTable;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
-public class SeeCategory extends Fragment {
+public class SeeReserve extends Fragment {
 
     private Display mDisplay;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.see_category, container, false);
+        final View view = inflater.inflate(R.layout.see_reserve, container, false);
 
         DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
         SQLiteDatabase mDb = dbHelper.getWritableDatabase();
         int[] adapterRowViews = new int[]{android.R.id.text1};
-        Cursor categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + ";", null);
-        SimpleCursorAdapter categorySca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1,
-                categoryCursor, new String[]{CategoryTable.COLUMN_TYPE}, adapterRowViews, 0);
-        categorySca.setDropDownViewResource(android.R.layout.simple_list_item_1);
-        ((ListView) view.findViewById(R.id.category_list)).setAdapter(categorySca);
-        categoryCursor.close();
+        Cursor reserveCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + ";", null);
+        SimpleCursorAdapter reserveSca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1,
+                reserveCursor, new String[]{ReserveTable.COLUMN_TYPE}, adapterRowViews, 0);
+        reserveSca.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        ((ListView) view.findViewById(R.id.reserve_list)).setAdapter(reserveSca);
+        reserveCursor.close();
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_create_category);
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_create_reserve);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showCreateCategoryDialog();
+                showCreateReserveDialog();
             }
         });
 
@@ -53,25 +53,25 @@ public class SeeCategory extends Fragment {
         return view;
     }
 
-    public void showCreateCategoryDialog() {
+    public void showCreateReserveDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.create_category, null);
+        final View dialogView = inflater.inflate(R.layout.create_reserve, null);
         dialogBuilder.setView(dialogView);
 
-        final EditText category = (EditText) dialogView.findViewById(R.id.category_text);
+        final EditText reserve = (EditText) dialogView.findViewById(R.id.reserve_text);
 
-        dialogBuilder.setTitle("Create Category");
+        dialogBuilder.setTitle("Create Reserve");
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //TODO Save category in database
-                mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
+                //TODO Save reserve in database
+                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 //pass
-                mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
+                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
             }
         });
         AlertDialog b = dialogBuilder.create();
