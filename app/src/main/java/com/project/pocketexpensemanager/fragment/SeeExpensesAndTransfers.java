@@ -2,6 +2,7 @@ package com.project.pocketexpensemanager.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -19,6 +20,8 @@ import com.project.pocketexpensemanager.fragment.communication.Display;
 public class SeeExpensesAndTransfers extends Fragment {
 
     private Display mDisplay;
+    private SQLiteDatabase mDb;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -77,4 +80,11 @@ public class SeeExpensesAndTransfers extends Fragment {
         }
     }
 
+    @Override
+    public void onDetach() {
+        if (mDb != null && mDb.isOpen()) {
+            mDb.close();
+        }
+        super.onDetach();
+    }
 }

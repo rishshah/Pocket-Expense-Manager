@@ -25,21 +25,22 @@ import com.project.pocketexpensemanager.fragment.communication.Display;
 public class SeeCategory extends Fragment {
 
     private Display mDisplay;
+    private DatabaseHelper dbHelper;
+    private Cursor categoryCursor;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.see_category, container, false);
-
-        DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
-        SQLiteDatabase mDb = dbHelper.getWritableDatabase();
         int[] adapterRowViews = new int[]{android.R.id.text1};
-        Cursor categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + ";", null);
+
+        SQLiteDatabase mDb = dbHelper.getReadableDatabase();
+        categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + ";", null);
         SimpleCursorAdapter categorySca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1,
                 categoryCursor, new String[]{CategoryTable.COLUMN_TYPE}, adapterRowViews, 0);
         categorySca.setDropDownViewResource(android.R.layout.simple_list_item_1);
         ((ListView) view.findViewById(R.id.category_list)).setAdapter(categorySca);
-        categoryCursor.close();
+        mDb.close();
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_create_category);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -48,8 +49,6 @@ public class SeeCategory extends Fragment {
                 showCreateCategoryDialog();
             }
         });
-
-
         return view;
     }
 
@@ -59,18 +58,22 @@ public class SeeCategory extends Fragment {
         final View dialogView = inflater.inflate(R.layout.create_category, null);
         dialogBuilder.setView(dialogView);
 
-        final EditText category = (EditText) dialogView.findViewById(R.id.category_text);
-
         dialogBuilder.setTitle("Create Category");
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //TODO Save category in database
+                String category = ((EditText) dialogView.findViewById(R.id.category_text)).getText().toString();
+                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                categoryCursor = mDb.rawQuery("select * from " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category});
+                if (categoryCursor != null && categoryCursor.getCount() == 0)
+                    mDb.execSQL("insert into " + CategoryTable.TABLE_NAME + " (" +
+                            CategoryTable.COLUMN_TYPE +
+                            ") " + " values (?);", new String[]{category});
+                mDb.close();
                 mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //pass
                 mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
             }
         });
@@ -82,10 +85,17 @@ public class SeeCategory extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
+            dbHelper = DatabaseHelper.getInstance(getActivity());
             mDisplay = (Display) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnCreatePostListener");
         }
     }
 
+    @Override
+    public void onDetach() {
+        if (categoryCursor != null && !categoryCursor.isClosed())
+            categoryCursor.close();
+        super.onDetach();
+    }
 }

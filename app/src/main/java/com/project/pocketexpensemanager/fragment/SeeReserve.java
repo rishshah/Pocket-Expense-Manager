@@ -25,21 +25,23 @@ import com.project.pocketexpensemanager.fragment.communication.Display;
 public class SeeReserve extends Fragment {
 
     private Display mDisplay;
+    private DatabaseHelper dbHelper;
+    private Cursor reserveCursor;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.see_reserve, container, false);
 
-        DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
-        SQLiteDatabase mDb = dbHelper.getWritableDatabase();
         int[] adapterRowViews = new int[]{android.R.id.text1};
-        Cursor reserveCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + ";", null);
+        SQLiteDatabase mDb = dbHelper.getReadableDatabase();
+        reserveCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + ";", null);
         SimpleCursorAdapter reserveSca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1,
                 reserveCursor, new String[]{ReserveTable.COLUMN_TYPE}, adapterRowViews, 0);
         reserveSca.setDropDownViewResource(android.R.layout.simple_list_item_1);
         ((ListView) view.findViewById(R.id.reserve_list)).setAdapter(reserveSca);
-        reserveCursor.close();
+        if (mDb.isOpen())
+            mDb.close();
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_create_reserve);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -59,18 +61,23 @@ public class SeeReserve extends Fragment {
         final View dialogView = inflater.inflate(R.layout.create_reserve, null);
         dialogBuilder.setView(dialogView);
 
-        final EditText reserve = (EditText) dialogView.findViewById(R.id.reserve_text);
-
         dialogBuilder.setTitle("Create Reserve");
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //TODO Save reserve in database
+                String reserve = ((EditText) dialogView.findViewById(R.id.reserve_text)).getText().toString();
+                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
+                if (reserveCursor != null && reserveCursor.getCount() == 0)
+                    mDb.execSQL("insert into " + ReserveTable.TABLE_NAME + " (" +
+                            ReserveTable.COLUMN_TYPE +
+                            ") " + " values (?);", new String[]{reserve});
+                if (mDb.isOpen())
+                    mDb.close();
                 mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //pass
                 mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
             }
         });
@@ -83,9 +90,16 @@ public class SeeReserve extends Fragment {
         super.onAttach(context);
         try {
             mDisplay = (Display) context;
+            dbHelper = DatabaseHelper.getInstance(getActivity());
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnCreatePostListener");
         }
     }
 
+    @Override
+    public void onDetach() {
+        if (reserveCursor != null && !reserveCursor.isClosed())
+            reserveCursor.close();
+        super.onDetach();
+    }
 }

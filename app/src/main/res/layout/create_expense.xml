@@ -60,7 +60,7 @@
         android:minWidth="170dp"
         android:layout_height="wrap_content"
         android:hint="Expense amount..."
-        android:digits="123456789."
+        android:digits="1234567890."
         android:layout_below="@+id/spinners"
         android:layout_marginTop="30dp"
         android:inputType="number"/>

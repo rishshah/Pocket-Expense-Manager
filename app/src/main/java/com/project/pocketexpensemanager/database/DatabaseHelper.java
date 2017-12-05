@@ -11,10 +11,21 @@ import com.project.pocketexpensemanager.database.table.TransferTable;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
+
+    private static DatabaseHelper sInstance;
+
     private static final String DATABASE_NAME = "pem.db";
     private static final int DATABASE_VERSION = 1;
 
-    public DatabaseHelper(Context context) {
+    public static synchronized DatabaseHelper getInstance(Context context) {
+
+        if (sInstance == null) {
+            sInstance = new DatabaseHelper(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+    private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
