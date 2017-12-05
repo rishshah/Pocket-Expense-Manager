@@ -8,20 +8,11 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveContents;
-import com.google.android.gms.drive.DriveFile;
-import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.MetadataChangeSet;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.project.pocketexpensemanager.fragment.CreateExpense;
 import com.project.pocketexpensemanager.fragment.CreateTransfer;
 import com.project.pocketexpensemanager.fragment.SeeCategory;
@@ -29,12 +20,8 @@ import com.project.pocketexpensemanager.fragment.SeeExpensesAndTransfers;
 import com.project.pocketexpensemanager.fragment.SeeReserve;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 
-
-public class HomeActivity extends DriveBase implements NavigationView.OnNavigationItemSelectedListener, Display {
+public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Display {
     public static final int CREATE_EXPENSE = 1;
     public static final int CREATE_TRANSFER = 2;
     public static final int SEE_SUMMARY = 3;
@@ -94,7 +81,6 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         if (fragment != null) {
             fragmentTransaction.replace(R.id.fragment_container, fragment).commit();
         } else {
-            showMessage("Work in progress...");
         }
     }
 
@@ -104,8 +90,6 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            setDriveResourceClient(Drive.getDriveResourceClient(this, GoogleSignIn.getLastSignedInAccount(this)));
-            onDriveClientReady();
             finishAffinity();
             super.onBackPressed();
         }
@@ -137,86 +121,4 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         return true;
     }
 
-    private void createFileInAppFolder() {
-        final Task<DriveFolder> appFolderTask = getDriveResourceClient().getAppFolder();
-        final Task<DriveContents> createContentsTask = getDriveResourceClient().createContents();
-        Tasks.whenAll(appFolderTask, createContentsTask)
-                .continueWithTask(new Continuation<Void, Task<DriveFile>>() {
-                    @Override
-                    public Task<DriveFile> then(Task<Void> task) throws Exception {
-                        DriveFolder parent = appFolderTask.getResult();
-                        DriveContents contents = createContentsTask.getResult();
-                        OutputStream outputStream = contents.getOutputStream();
-                        try (Writer writer = new OutputStreamWriter(outputStream)) {
-                            writer.write("Hello World!");
-                        }
-
-                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                                .setTitle("New file")
-                                .setMimeType("text/plain")
-                                .setStarred(true)
-                                .build();
-
-                        return getDriveResourceClient().createFile(parent, changeSet, contents);
-                    }
-                })
-                .addOnSuccessListener(this, new OnSuccessListener<DriveFile>() {
-                    @Override
-                    public void onSuccess(DriveFile driveFile) {
-                        showMessage("File created");
-                    }
-                })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        showMessage("Unable to create file");
-                    }
-                });
-    }
-
-    @Override
-    public void onDriveClientReady() {
-        createFile();
-        createFileInAppFolder();
-    }
-
-    private void createFile() {
-        // [START create_file]
-        final Task<DriveFolder> rootFolderTask = getDriveResourceClient().getRootFolder();
-        final Task<DriveContents> createContentsTask = getDriveResourceClient().createContents();
-        Tasks.whenAll(rootFolderTask, createContentsTask)
-                .continueWithTask(new Continuation<Void, Task<DriveFile>>() {
-                    @Override
-                    public Task<DriveFile> then(Task<Void> task) throws Exception {
-                        DriveFolder parent = rootFolderTask.getResult();
-                        DriveContents contents = createContentsTask.getResult();
-                        OutputStream outputStream = contents.getOutputStream();
-                        try (Writer writer = new OutputStreamWriter(outputStream)) {
-                            writer.write("Hello World!");
-                        }
-
-                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                                .setTitle("HelloWorld.txt")
-                                .setMimeType("text/plain")
-                                .setStarred(true)
-                                .build();
-
-                        return getDriveResourceClient().createFile(parent, changeSet, contents);
-                    }
-                })
-                .addOnSuccessListener(this,
-                        new OnSuccessListener<DriveFile>() {
-                            @Override
-                            public void onSuccess(DriveFile driveFile) {
-                                showMessage("file created");
-                            }
-                        })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        showMessage("failed to create file");
-                    }
-                });
-        // [END create_file]
-    }
 }
