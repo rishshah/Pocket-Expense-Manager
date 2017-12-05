@@ -12,9 +12,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
@@ -39,7 +41,15 @@ public class SeeCategory extends Fragment {
         SimpleCursorAdapter categorySca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1,
                 categoryCursor, new String[]{CategoryTable.COLUMN_TYPE}, adapterRowViews, 0);
         categorySca.setDropDownViewResource(android.R.layout.simple_list_item_1);
-        ((ListView) view.findViewById(R.id.category_list)).setAdapter(categorySca);
+        final ListView category_list = (ListView) view.findViewById(R.id.reserve_list);
+        category_list.setAdapter(categorySca);
+        category_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                showEditReserveDialog(textView.getText().toString());
+            }
+        });
         mDb.close();
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_create_category);
@@ -50,6 +60,36 @@ public class SeeCategory extends Fragment {
             }
         });
         return view;
+    }
+
+    private void showEditReserveDialog(final String current_category) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.create_category, null);
+        dialogBuilder.setView(dialogView);
+        ((EditText) dialogView.findViewById(R.id.category_text)).setText(current_category);
+        dialogBuilder.setTitle("Edit Category");
+        dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String category = ((EditText) dialogView.findViewById(R.id.category_text)).getText().toString();
+                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                categoryCursor = mDb.rawQuery("select * from " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category});
+                if (categoryCursor != null && categoryCursor.getCount() == 0)
+                    mDb.execSQL("update " + CategoryTable.TABLE_NAME + " set " +
+                            CategoryTable.COLUMN_TYPE +
+                            " = ? where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category, current_category});
+
+                mDb.close();
+                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+            }
+        });
+        AlertDialog b = dialogBuilder.create();
+        b.show();
     }
 
     public void showCreateCategoryDialog() {

@@ -37,10 +37,10 @@ import java.io.Writer;
 public class HomeActivity extends DriveBase implements NavigationView.OnNavigationItemSelectedListener, Display {
     public static final int CREATE_EXPENSE = 1;
     public static final int CREATE_TRANSFER = 2;
-    public static final int SEE_SUMMARY = 5;
-    public static final int SEE_CATEGORY = 6;
-    public static final int SEE_TRANSACTIONS = 7;
-    public static final int SEE_RESERVE = 8;
+    public static final int SEE_SUMMARY = 3;
+    public static final int SEE_CATEGORY = 4;
+    public static final int SEE_TRANSACTIONS = 5;
+    public static final int SEE_RESERVE = 6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +59,6 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        setDriveResourceClient(Drive.getDriveResourceClient(this, GoogleSignIn.getLastSignedInAccount(this)));
-        onDriveClientReady();
     }
 
     @Override
@@ -71,6 +68,7 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         Fragment fragment = null;
         switch (action) {
             case SEE_SUMMARY:
+                getSupportActionBar().setTitle("Summary");
                 break;
             case SEE_TRANSACTIONS:
                 getSupportActionBar().setTitle("Recent Activities");
@@ -106,12 +104,13 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            setDriveResourceClient(Drive.getDriveResourceClient(this, GoogleSignIn.getLastSignedInAccount(this)));
+            onDriveClientReady();
             finishAffinity();
             super.onBackPressed();
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -127,7 +126,11 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
             displayFragment(SEE_RESERVE);
         }
         else if (id == R.id.nav_settings) {
+            displayFragment(SEE_TRANSACTIONS);
             //TODO Settings page
+        }
+        else if (id == R.id.nav_home) {
+            displayFragment(SEE_TRANSACTIONS);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

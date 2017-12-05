@@ -21,8 +21,8 @@ public class ExpenseTable implements BaseColumns{
             COLUMN_DESCRIPTION + " TEXT, " +
             COLUMN_AMOUNT + " FLOAT," +
             COLUMN_MOP + " VARCHAR(20)," +
-            "FOREIGN KEY("+ COLUMN_CATEGORY +") REFERENCES " + CategoryTable.TABLE_NAME + "(" + CategoryTable.COLUMN_TYPE + ")," +
-            "FOREIGN KEY("+ COLUMN_MOP +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ")" +
+            "FOREIGN KEY("+ COLUMN_CATEGORY +") REFERENCES " + CategoryTable.TABLE_NAME + "(" + CategoryTable.COLUMN_TYPE + ") ON UPDATE CASCADE," +
+            "FOREIGN KEY("+ COLUMN_MOP +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ") ON UPDATE CASCADE" +
             ");";
 
 

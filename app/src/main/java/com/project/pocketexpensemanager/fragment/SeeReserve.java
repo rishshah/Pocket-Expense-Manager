@@ -12,9 +12,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
@@ -39,9 +41,16 @@ public class SeeReserve extends Fragment {
         SimpleCursorAdapter reserveSca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1,
                 reserveCursor, new String[]{ReserveTable.COLUMN_TYPE}, adapterRowViews, 0);
         reserveSca.setDropDownViewResource(android.R.layout.simple_list_item_1);
-        ((ListView) view.findViewById(R.id.reserve_list)).setAdapter(reserveSca);
-        if (mDb.isOpen())
-            mDb.close();
+        final ListView reserve_list = (ListView) view.findViewById(R.id.reserve_list);
+        reserve_list.setAdapter(reserveSca);
+        reserve_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+                showEditReserveDialog(textView.getText().toString());
+            }
+        });
+        mDb.close();
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_create_reserve);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -53,6 +62,36 @@ public class SeeReserve extends Fragment {
 
 
         return view;
+    }
+
+    private void showEditReserveDialog(final String current_reserve) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.create_reserve, null);
+        dialogBuilder.setView(dialogView);
+        ((EditText) dialogView.findViewById(R.id.reserve_text)).setText(current_reserve);
+        dialogBuilder.setTitle("Edit Reserve");
+        dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String reserve = ((EditText) dialogView.findViewById(R.id.reserve_text)).getText().toString();
+                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
+                if (reserveCursor != null && reserveCursor.getCount() == 0)
+                    mDb.execSQL("update " + ReserveTable.TABLE_NAME + " set " +
+                            ReserveTable.COLUMN_TYPE +
+                            " = ? where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve, current_reserve});
+
+                mDb.close();
+                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+            }
+        });
+        AlertDialog b = dialogBuilder.create();
+        b.show();
     }
 
     public void showCreateReserveDialog() {
@@ -71,8 +110,7 @@ public class SeeReserve extends Fragment {
                     mDb.execSQL("insert into " + ReserveTable.TABLE_NAME + " (" +
                             ReserveTable.COLUMN_TYPE +
                             ") " + " values (?);", new String[]{reserve});
-                if (mDb.isOpen())
-                    mDb.close();
+                mDb.close();
                 mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
             }
         });

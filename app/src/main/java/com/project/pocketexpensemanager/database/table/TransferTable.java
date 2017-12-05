@@ -19,8 +19,8 @@ public class TransferTable implements BaseColumns{
             COLUMN_AMOUNT + " FLOAT," +
             COLUMN_FROM_MODE + " VARCHAR(20)," +
             COLUMN_TO_MODE + " VARCHAR(20)," +
-            "FOREIGN KEY("+ COLUMN_FROM_MODE +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ")," +
-            "FOREIGN KEY("+ COLUMN_TO_MODE +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ")" +
+            "FOREIGN KEY("+ COLUMN_FROM_MODE +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ") ON UPDATE CASCADE," +
+            "FOREIGN KEY("+ COLUMN_TO_MODE +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ") ON UPDATE CASCADE" +
             ");";
 
     public static void onCreate(SQLiteDatabase database) {
