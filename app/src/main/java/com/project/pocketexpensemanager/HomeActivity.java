@@ -10,15 +10,19 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.project.pocketexpensemanager.constant.Constants;
 import com.project.pocketexpensemanager.fragment.CreateExpense;
 import com.project.pocketexpensemanager.fragment.CreateTransfer;
 import com.project.pocketexpensemanager.fragment.SeeCategory;
 import com.project.pocketexpensemanager.fragment.SeeExpensesAndTransfers;
 import com.project.pocketexpensemanager.fragment.SeeReserve;
 import com.project.pocketexpensemanager.fragment.communication.Display;
+
+import java.text.ParseException;
+import java.util.Date;
 
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Display {
@@ -121,4 +125,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    @Override
+    public String parseDate(String c){
+        try {
+            Date date = Constants.INPUT_FORMAT.parse(c);
+            return Constants.OUTPUT_FORMAT.format(date);
+        } catch (ParseException e) {
+            Log.e("ERROR ", e.getMessage().toString());
+            return null;
+        }
+    }
 }

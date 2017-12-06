@@ -7,7 +7,7 @@
     tools:context="com.project.pocketexpensemanager.HomeActivity">
 
     <ListView
-    android:id="@+id/category_list"
+    android:id="@+id/transaction_list"
     android:stackFromBottom="true"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"/>

@@ -57,7 +57,8 @@ public class CreateTransfer extends Fragment {
 
                     DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                         public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                            ((EditText) view.findViewById(R.id.transfer_date_text)).setText(String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear));
+                            String date =  String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear);
+                            ((EditText) view.findViewById(R.id.transfer_date_text)).setText(mDisplay.parseDate(date));
                         }
                     }, mYear, mMonth, mDay);
                     mDatePicker.setTitle("Select date");

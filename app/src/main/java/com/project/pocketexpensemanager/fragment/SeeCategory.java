@@ -41,7 +41,7 @@ public class SeeCategory extends Fragment {
         SimpleCursorAdapter categorySca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1,
                 categoryCursor, new String[]{CategoryTable.COLUMN_TYPE}, adapterRowViews, 0);
         categorySca.setDropDownViewResource(android.R.layout.simple_list_item_1);
-        final ListView category_list = (ListView) view.findViewById(R.id.reserve_list);
+        final ListView category_list = (ListView) view.findViewById(R.id.category_list);
         category_list.setAdapter(categorySca);
         category_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

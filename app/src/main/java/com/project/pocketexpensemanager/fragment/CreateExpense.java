@@ -15,6 +15,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
@@ -30,6 +31,8 @@ public class CreateExpense extends Fragment {
     private Display mDisplay;
     private DatabaseHelper dbHelper;
     private Cursor categoryCursor, mopCursor;
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -63,7 +66,9 @@ public class CreateExpense extends Fragment {
 
                     DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                         public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                            ((EditText) view.findViewById(R.id.expense_date_text)).setText(String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear));
+                            String date =  String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear);
+                            ((EditText) view.findViewById(R.id.expense_date_text)).setText(mDisplay.parseDate(date));
+                            view.findViewById(R.id.amount_text).requestFocus();
                         }
                     }, mYear, mMonth, mDay);
                     mDatePicker.setTitle("Select date");
@@ -77,7 +82,7 @@ public class CreateExpense extends Fragment {
             @Override
             public void onClick(View v) {
                 String date = ((EditText) view.findViewById(R.id.expense_date_text)).getText().toString();
-                String category = ((Spinner) view.findViewById(R.id.category_spinner)).getSelectedItem().toString();
+                String category = ((TextView)((Spinner) view.findViewById(R.id.category_spinner)).getSelectedView()).getText().toString();
                 String description = ((EditText) view.findViewById(R.id.description_text)).getText().toString();
                 String amount = ((EditText) view.findViewById(R.id.amount_text)).getText().toString();
                 String mop = ((Spinner) view.findViewById(R.id.mop_spinner)).getSelectedItem().toString();
