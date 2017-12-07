@@ -4,20 +4,21 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-public class ExpenseTable implements BaseColumns{
+public class ExpenseAmountTable implements BaseColumns {
 
-    public static final String TABLE_NAME = "expense";
-    public static final String COLUMN_DATE = "date";
-    public static final String COLUMN_CATEGORY = "category";
-    public static final String COLUMN_DESCRIPTION  = "description";
+    public static final String TABLE_NAME = "expense_amount";
+    public static final String COLUMN_EXPENSE_ID = "expense_id";
+    public static final String COLUMN_MOP  = "method_of_payment";
+    public static final String COLUMN_AMOUNT  = "amount";
 
     // Database creation SQL statement
     private static final String TABLE_CREATE = "create table " + TABLE_NAME + " (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            COLUMN_DATE + " DATETIME, " +
-            COLUMN_CATEGORY + " VARCHAR(20), " +
-            COLUMN_DESCRIPTION + " TEXT, " +
-            "FOREIGN KEY("+ COLUMN_CATEGORY +") REFERENCES " + CategoryTable.TABLE_NAME + "(" + CategoryTable.COLUMN_TYPE + ") ON UPDATE CASCADE" +
+            COLUMN_EXPENSE_ID + " INTEGER," +
+            COLUMN_AMOUNT + " FLOAT," +
+            COLUMN_MOP + " VARCHAR(20)," +
+            "FOREIGN KEY("+ COLUMN_EXPENSE_ID +") REFERENCES " + ExpenseTable.TABLE_NAME + "(_id) ON UPDATE CASCADE," +
+            "FOREIGN KEY("+ COLUMN_MOP +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ") ON UPDATE CASCADE" +
             ");";
 
 

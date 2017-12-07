@@ -1,18 +1,24 @@
 package com.project.pocketexpensemanager.fragment;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -21,6 +27,7 @@ import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
 import com.project.pocketexpensemanager.database.table.CategoryTable;
+import com.project.pocketexpensemanager.database.table.ExpenseAmountTable;
 import com.project.pocketexpensemanager.database.table.ExpenseTable;
 import com.project.pocketexpensemanager.database.table.ReserveTable;
 import com.project.pocketexpensemanager.fragment.communication.Display;
@@ -47,12 +54,6 @@ public class CreateExpense extends Fragment {
         categorySca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ((Spinner) view.findViewById(R.id.category_spinner)).setAdapter(categorySca);
 
-        //Method Of Payment Picker
-        mopCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + ";", null);
-        SimpleCursorAdapter mopSca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_spinner_item,
-                mopCursor, new String[]{ReserveTable.COLUMN_TYPE}, adapterRowViews, 0);
-        mopSca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ((Spinner) view.findViewById(R.id.mop_spinner)).setAdapter(mopSca);
         mDb.close();
         // Date Picker
         view.findViewById(R.id.expense_date_text).setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -66,9 +67,9 @@ public class CreateExpense extends Fragment {
 
                     DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                         public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                            String date =  String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear);
+                            String date = String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear);
                             ((EditText) view.findViewById(R.id.expense_date_text)).setText(mDisplay.parseDate(date));
-                            view.findViewById(R.id.amount_text).requestFocus();
+                            view.findViewById(R.id.description_text).requestFocus();
                         }
                     }, mYear, mMonth, mDay);
                     mDatePicker.setTitle("Select date");
@@ -82,24 +83,94 @@ public class CreateExpense extends Fragment {
             @Override
             public void onClick(View v) {
                 String date = ((EditText) view.findViewById(R.id.expense_date_text)).getText().toString();
-                String category = ((TextView)((Spinner) view.findViewById(R.id.category_spinner)).getSelectedView()).getText().toString();
+                String category = ((TextView) ((Spinner) view.findViewById(R.id.category_spinner)).getSelectedView()).getText().toString();
                 String description = ((EditText) view.findViewById(R.id.description_text)).getText().toString();
-                String amount = ((EditText) view.findViewById(R.id.amount_text)).getText().toString();
-                String mop = ((Spinner) view.findViewById(R.id.mop_spinner)).getSelectedItem().toString();
                 SQLiteDatabase mDb = dbHelper.getWritableDatabase();
                 mDb.execSQL("insert into " + ExpenseTable.TABLE_NAME + " (" +
                                 ExpenseTable.COLUMN_DATE + "," +
                                 ExpenseTable.COLUMN_CATEGORY + "," +
-                                ExpenseTable.COLUMN_DESCRIPTION + "," +
-                                ExpenseTable.COLUMN_AMOUNT + "," +
-                                ExpenseTable.COLUMN_MOP +
-                                ") " +" values (?, ?, ?, ?, ?);",
-                        new String[]{date, category, description, amount, mop});
+                                ExpenseTable.COLUMN_DESCRIPTION +
+                                ") " + " values (?, ?, ?);",
+                        new String[]{date, category, description});
+
+                String[] mop = ((TextView) view.findViewById(R.id.amount_text)).getText().toString().split(", ");
+                categoryCursor = mDb.rawQuery("SELECT _id from " + ExpenseTable.TABLE_NAME + " order by _id DESC limit 1;", null);
+                if (categoryCursor.moveToFirst()) {
+                    String id = categoryCursor.getString(0);
+                    for (String payment : mop) {
+                        String reserve = payment.split("-")[0];
+                        String amount = payment.split("-")[1];
+
+                        mDb.execSQL("insert into " + ExpenseAmountTable.TABLE_NAME + " (" +
+                                        ExpenseAmountTable.COLUMN_EXPENSE_ID + "," +
+                                        ExpenseAmountTable.COLUMN_MOP + "," +
+                                        ExpenseAmountTable.COLUMN_AMOUNT +
+                                        ") " + " values (?, ?, ?);",
+                                new String[]{id, reserve, amount});
+                    }
+                }
                 mDb.close();
-                mDisplay.displayFragment(HomeActivity.SEE_TRANSACTIONS);
+                mDisplay.displayFragment(HomeActivity.SEE_EXPENSES);
             }
         });
 
+        view.findViewById(R.id.add_payment).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builderSingle = new AlertDialog.Builder(getActivity());
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                final View dialogView = inflater.inflate(R.layout.payment_detail, null);
+                builderSingle.setView(dialogView);
+                builderSingle.setTitle("Amount and Method Of Payment:-");
+
+                SQLiteDatabase mDb = dbHelper.getReadableDatabase();
+                mopCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + ";", null);
+                SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.payment_detail_method,
+                        mopCursor, new String[]{ReserveTable.COLUMN_TYPE}, new int[]{R.id.mop_caption}, 0);
+                adapter.setDropDownViewResource(R.layout.payment_detail_method);
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(dialogView.findViewById(R.id.amount_text), InputMethodManager.SHOW_IMPLICIT);
+                final ListView paymentList = (ListView) dialogView.findViewById(R.id.payment_list);
+                paymentList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View v, int i, long l) {
+                        v.findViewById(R.id.mop_amount).requestFocus();
+                        Log.e("ERR", v.toString());
+                    }
+                });
+                paymentList.setAdapter(adapter);
+
+                builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.e("CANCEL", String.valueOf(which));
+                        dialog.dismiss();
+                    }
+                });
+                builderSingle.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        Log.e("SAVE", String.valueOf(whichButton));
+                        String finalString = "";
+                        boolean enteredOnce = false;
+                        for (int i = 0; i < mopCursor.getCount(); i++) {
+                            View child = paymentList.getChildAt(i);
+                            String reserve = ((TextView) child.findViewById(R.id.mop_caption)).getText().toString();
+                            String amount = ((EditText) child.findViewById(R.id.mop_amount)).getText().toString();
+                            if (!(amount.equals("") || Float.valueOf(amount) == 0)) {
+                                enteredOnce = true;
+                                finalString += reserve + "-" + amount + ", ";
+                            }
+                        }
+                        if (enteredOnce)
+                            finalString = finalString.substring(0, finalString.length() - 2);
+                        ((TextView) view.findViewById(R.id.amount_text)).setText(finalString);
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog b = builderSingle.create();
+                b.show();
+            }
+        });
         return view;
     }
 

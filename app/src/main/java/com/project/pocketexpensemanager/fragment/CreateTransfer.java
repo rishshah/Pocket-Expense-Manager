@@ -84,7 +84,7 @@ public class CreateTransfer extends Fragment {
                                 ") " +" values (?, ?, ?, ?);",
                         new String[]{date, amount, from_mode, to_mode});
                 mDb.close();
-                mDisplay.displayFragment(HomeActivity.SEE_TRANSACTIONS);
+                mDisplay.displayFragment(HomeActivity.SEE_EXPENSES);
             }
         });
 

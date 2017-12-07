@@ -34,13 +34,13 @@ public class SeeExpenses extends Fragment {
         final View view = inflater.inflate(R.layout.see_expense, container, false);
         SQLiteDatabase mDb = dbHelper.getWritableDatabase();
 
-        int[] adapterRowViews = new int[]{R.id.category, R.id.description, R.id.date, R.id.amount};
-        String[] adapterColViews = new String[]{ExpenseTable.COLUMN_CATEGORY, ExpenseTable.COLUMN_DESCRIPTION, ExpenseTable.COLUMN_DATE, ExpenseTable.COLUMN_AMOUNT};
+        int[] adapterRowViews = new int[]{R.id.category, R.id.description, R.id.date};
+        String[] adapterColViews = new String[]{ExpenseTable.COLUMN_CATEGORY, ExpenseTable.COLUMN_DESCRIPTION, ExpenseTable.COLUMN_DATE};
         transactionCursor = mDb.rawQuery("SELECT * FROM " + ExpenseTable.TABLE_NAME + ";", null);
         SimpleCursorAdapter transactionSca = new SimpleCursorAdapter(getActivity(), R.layout.expense_item,
                 transactionCursor, adapterColViews, adapterRowViews, 0);
         transactionSca.setDropDownViewResource(R.layout.expense_item);
-        ListView transaction_list = (ListView) view.findViewById(R.id.transaction_list);
+        ListView transaction_list = (ListView) view.findViewById(R.id.expense_list);
         transaction_list.setAdapter(transactionSca);
 //        transaction_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 //            @Override

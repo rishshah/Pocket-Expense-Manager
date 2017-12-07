@@ -30,7 +30,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public static final int CREATE_TRANSFER = 2;
     public static final int SEE_SUMMARY = 3;
     public static final int SEE_CATEGORY = 4;
-    public static final int SEE_TRANSACTIONS = 5;
+    public static final int SEE_EXPENSES = 5;
     public static final int SEE_RESERVE = 6;
 
     @Override
@@ -40,7 +40,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("My Expenses");
-        displayFragment(SEE_TRANSACTIONS);
+        displayFragment(SEE_EXPENSES);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -61,7 +61,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case SEE_SUMMARY:
                 getSupportActionBar().setTitle("Summary");
                 break;
-            case SEE_TRANSACTIONS:
+            case SEE_EXPENSES:
                 getSupportActionBar().setTitle("Recent Activities");
                 fragment = new SeeExpenses();
                 break;
@@ -113,11 +113,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             displayFragment(SEE_RESERVE);
         }
         else if (id == R.id.nav_settings) {
-            displayFragment(SEE_TRANSACTIONS);
+            displayFragment(SEE_EXPENSES);
             //TODO Settings page
         }
         else if (id == R.id.nav_home) {
-            displayFragment(SEE_TRANSACTIONS);
+            displayFragment(SEE_EXPENSES);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
