@@ -6,4 +6,18 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+    <string name="rupee_symbol">Rupee Symbol</string>
+    <string name="new_category">New Category</string>
+    <string name="date_of_expense">Date of expense…</string>
+    <string name="category">Category</string>
+    <string name="method_of_payment">Method Of Payment</string>
+    <string name="expense_amount">Expense amount…</string>
+    <string name="extra_description">Extra description…</string>
+    <string name="new_reserve">New Reserve</string>
+    <string name="date_of_transfer">Date of transfer…</string>
+    <string name="from_mode">From Mode</string>
+    <string name="to_mode">To Mode</string>
+    <string name="transfer_amount">Transfer amount…</string>
+    <string name="profile_pic">Profile pic</string>
+    <string name="rishrock17_gmail_com">rishrock17@gmail.com</string>
 </resources>

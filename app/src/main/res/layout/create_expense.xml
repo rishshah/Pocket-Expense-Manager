@@ -12,11 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:hint="Date of expense..."
+        android:hint="@string/date_of_expense"
         android:clickable="false"
         android:inputType="date" />
 
     <LinearLayout
+        android:baselineAligned="false"
         android:id="@+id/spinners"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,7 +33,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Category"/>
+                android:text="@string/category"/>
             <Spinner
                 android:id="@+id/category_spinner"
                 android:layout_width="match_parent"
@@ -47,7 +48,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Method Of Payment"/>
+                android:text="@string/method_of_payment"/>
             <Spinner
                 android:id="@+id/mop_spinner"
                 android:layout_width="match_parent"
@@ -60,7 +61,7 @@
         android:layout_width="match_parent"
         android:minWidth="170dp"
         android:layout_height="wrap_content"
-        android:hint="Expense amount..."
+        android:hint="@string/expense_amount"
         android:digits="1234567890."
         android:layout_below="@+id/spinners"
         android:layout_marginTop="30dp"
@@ -70,7 +71,7 @@
         android:id="@+id/description_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Extra description..."
+        android:hint="@string/extra_description"
         android:inputType="textMultiLine"
         android:layout_marginTop="30dp"
         android:layout_below="@+id/amount_text"

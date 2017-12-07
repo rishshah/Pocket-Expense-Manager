@@ -19,11 +19,10 @@ import android.widget.SimpleCursorAdapter;
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
-import com.project.pocketexpensemanager.database.table.CategoryTable;
 import com.project.pocketexpensemanager.database.table.ExpenseTable;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
-public class SeeExpensesAndTransfers extends Fragment {
+public class SeeExpenses extends Fragment {
 
     private Display mDisplay;
     private DatabaseHelper dbHelper;
@@ -32,17 +31,47 @@ public class SeeExpensesAndTransfers extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.see_transaction, container, false);
+        final View view = inflater.inflate(R.layout.see_expense, container, false);
         SQLiteDatabase mDb = dbHelper.getWritableDatabase();
 
         int[] adapterRowViews = new int[]{R.id.category, R.id.description, R.id.date, R.id.amount};
         String[] adapterColViews = new String[]{ExpenseTable.COLUMN_CATEGORY, ExpenseTable.COLUMN_DESCRIPTION, ExpenseTable.COLUMN_DATE, ExpenseTable.COLUMN_AMOUNT};
         transactionCursor = mDb.rawQuery("SELECT * FROM " + ExpenseTable.TABLE_NAME + ";", null);
-        SimpleCursorAdapter categorySca = new SimpleCursorAdapter(getActivity(), R.layout.transaction_item,
+        SimpleCursorAdapter transactionSca = new SimpleCursorAdapter(getActivity(), R.layout.expense_item,
                 transactionCursor, adapterColViews, adapterRowViews, 0);
-        categorySca.setDropDownViewResource(R.layout.transaction_item);
-        ((ListView) view.findViewById(R.id.transaction_list)).setAdapter(categorySca);
-
+        transactionSca.setDropDownViewResource(R.layout.expense_item);
+        ListView transaction_list = (ListView) view.findViewById(R.id.transaction_list);
+        transaction_list.setAdapter(transactionSca);
+//        transaction_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                TextView textView = (TextView) view.findViewById(android.R.id.text1);
+//                LayoutInflater inflater = getActivity().getLayoutInflater();
+//                final View editExpenseview = inflater.inflate(R.layout.create_expense, null);
+//                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+//                transactionCursor = mDb.rawQuery("select * from " + ExpenseTable.TABLE_NAME + " where " +
+//                        ExpenseTable.COLUMN_AMOUNT + " = ? and " +
+//                        ExpenseTable.COLUMN_CATEGORY + " = ? and " +
+//                        ExpenseTable.COLUMN_DATE + " = ? and " +
+//                        ExpenseTable.COLUMN_DESCRIPTION + " = ?; ", new String[]{amount, category, date, description});
+//                if (transactionCursor != null && transactionCursor.getCount() == 0)
+//                    mDb.execSQL("update " + ExpenseTable.TABLE_NAME + " set (" +
+//                            ExpenseTable.COLUMN_AMOUNT + ", " +
+//                            ExpenseTable.COLUMN_CATEGORY + ", " +
+//                            ExpenseTable.COLUMN_DATE + ", " +
+//                            ExpenseTable.COLUMN_DESCRIPTION + ", " +
+//                            ExpenseTable.COLUMN_MOP + ", " +
+//                            "(?, ?, ?, ?, ?)  where " +
+//                            ExpenseTable.COLUMN_AMOUNT + " = ? and " +
+//                            ExpenseTable.COLUMN_CATEGORY + " = ? and " +
+//                            ExpenseTable.COLUMN_DATE + " = ? and " +
+//                            ExpenseTable.COLUMN_DESCRIPTION + " = ?; ", new String[]{amount, category, date, description});
+//                ((EditText) editExpenseview.findViewById(R.id.expense_date_text)).setText("");
+//                ((EditText) editExpenseview.findViewById(R.id.amount_text)).setText("");
+//                ((EditText) editExpenseview.findViewById(R.id.description_text)).setText("");
+//            }
+//        });
+        mDb.close();
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_create_expense);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

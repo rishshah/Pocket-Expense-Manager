@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -17,12 +18,11 @@ import com.project.pocketexpensemanager.constant.Constants;
 import com.project.pocketexpensemanager.fragment.CreateExpense;
 import com.project.pocketexpensemanager.fragment.CreateTransfer;
 import com.project.pocketexpensemanager.fragment.SeeCategory;
-import com.project.pocketexpensemanager.fragment.SeeExpensesAndTransfers;
+import com.project.pocketexpensemanager.fragment.SeeExpenses;
 import com.project.pocketexpensemanager.fragment.SeeReserve;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
 import java.text.ParseException;
-import java.util.Date;
 
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Display {
@@ -63,7 +63,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case SEE_TRANSACTIONS:
                 getSupportActionBar().setTitle("Recent Activities");
-                fragment = new SeeExpensesAndTransfers();
+                fragment = new SeeExpenses();
                 break;
             case SEE_RESERVE:
                 getSupportActionBar().setTitle("Existing Reserves");
@@ -84,7 +84,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
         if (fragment != null) {
             fragmentTransaction.replace(R.id.fragment_container, fragment).commit();
-        } else {
         }
     }
 
@@ -100,7 +99,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -128,10 +127,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public String parseDate(String c){
         try {
-            Date date = Constants.INPUT_FORMAT.parse(c);
-            return Constants.OUTPUT_FORMAT.format(date);
+            return Constants.OUTPUT_FORMAT.format(Constants.INPUT_FORMAT.parse(c));
         } catch (ParseException e) {
-            Log.e("ERROR ", e.getMessage().toString());
+            Log.e("ERROR ", e.getMessage());
             return null;
         }
     }

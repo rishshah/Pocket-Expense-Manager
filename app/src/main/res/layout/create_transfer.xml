@@ -12,10 +12,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:hint="Date of transfer..."
+        android:hint="@string/date_of_transfer"
         android:inputType="date" />
 
     <LinearLayout
+        android:baselineAligned="false"
         android:id="@+id/spinners"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,7 +32,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="From Mode"/>
+                android:text="@string/from_mode"/>
             <Spinner
                 android:id="@+id/from_mode_spinner"
                 android:layout_width="match_parent"
@@ -46,7 +47,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="To Mode"/>
+                android:text="@string/to_mode"/>
             <Spinner
                 android:id="@+id/to_mode_spinner"
                 android:layout_width="match_parent"
@@ -59,7 +60,7 @@
         android:layout_width="match_parent"
         android:minWidth="170dp"
         android:layout_height="wrap_content"
-        android:hint="Transfer amount..."
+        android:hint="@string/transfer_amount"
         android:digits="1234567890."
         android:layout_below="@+id/spinners"
         android:layout_marginTop="30dp"

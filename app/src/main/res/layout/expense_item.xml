@@ -10,11 +10,12 @@
 
     <ImageView
         android:layout_width="0dp"
+        android:contentDescription="@string/rupee_symbol"
         android:layout_height="match_parent"
         android:src="@drawable/ic_rupee"
         android:scaleX="1.8"
         android:scaleY="1.8"
-        android:layout_weight="0.5"></ImageView>
+        android:layout_weight="0.5"/>
 
     <TextView
         android:id="@+id/amount"
@@ -23,7 +24,6 @@
         android:layout_weight="2"
         android:fontFamily="cursive"
         android:gravity="center_vertical"
-        android:text="150"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="@color/colorAccent"
         android:textSize="25sp"
@@ -32,7 +32,7 @@
     <TextView
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="0.5"></TextView>
+        android:layout_weight="0.5"/>
 
     <RelativeLayout
         android:layout_width="0dp"
@@ -51,7 +51,6 @@
                 android:layout_width="0dp"
                 android:layout_weight="2.5"
                 android:layout_height="match_parent"
-                android:text="Food"
                 android:gravity="start"
                 android:textColor="@color/colorLight"
                 android:textSize="20sp"
@@ -63,7 +62,6 @@
                 android:layout_weight="1.5"
                 android:layout_height="match_parent"
                 android:gravity="end|fill_vertical"
-                android:text="July 27, 2017"
                 android:textColor="@color/colorAccent"
                 android:textSize="12sp" />
 
@@ -75,7 +73,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/title"
             android:gravity="start"
-            android:text="Not so big Description"
             android:textColor="@color/colorLight"
             android:textSize="18sp" />
     </RelativeLayout>

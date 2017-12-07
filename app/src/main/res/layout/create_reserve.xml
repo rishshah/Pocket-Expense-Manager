@@ -10,7 +10,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:hint="New Reserve"
+        android:hint="@string/new_reserve"
         android:inputType="text" />
 
 </RelativeLayout>
