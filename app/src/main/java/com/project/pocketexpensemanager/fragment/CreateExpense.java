@@ -117,61 +117,63 @@ public class CreateExpense extends Fragment {
         view.findViewById(R.id.add_payment).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builderSingle = new AlertDialog.Builder(getActivity());
-                LayoutInflater inflater = getActivity().getLayoutInflater();
-                final View dialogView = inflater.inflate(R.layout.payment_detail, null);
-                builderSingle.setView(dialogView);
-                builderSingle.setTitle("Amount and Method Of Payment:-");
-
-                SQLiteDatabase mDb = dbHelper.getReadableDatabase();
-                mopCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + ";", null);
-                SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.payment_detail_method,
-                        mopCursor, new String[]{ReserveTable.COLUMN_TYPE}, new int[]{R.id.mop_caption}, 0);
-                adapter.setDropDownViewResource(R.layout.payment_detail_method);
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(dialogView.findViewById(R.id.amount_text), InputMethodManager.SHOW_IMPLICIT);
-                final ListView paymentList = (ListView) dialogView.findViewById(R.id.payment_list);
-                paymentList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View v, int i, long l) {
-                        v.findViewById(R.id.mop_amount).requestFocus();
-                        Log.e("ERR", v.toString());
-                    }
-                });
-                paymentList.setAdapter(adapter);
-
-                builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.e("CANCEL", String.valueOf(which));
-                        dialog.dismiss();
-                    }
-                });
-                builderSingle.setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        Log.e("SAVE", String.valueOf(whichButton));
-                        String finalString = "";
-                        boolean enteredOnce = false;
-                        for (int i = 0; i < mopCursor.getCount(); i++) {
-                            View child = paymentList.getChildAt(i);
-                            String reserve = ((TextView) child.findViewById(R.id.mop_caption)).getText().toString();
-                            String amount = ((EditText) child.findViewById(R.id.mop_amount)).getText().toString();
-                            if (!(amount.equals("") || Float.valueOf(amount) == 0)) {
-                                enteredOnce = true;
-                                finalString += reserve + "-" + amount + ", ";
-                            }
-                        }
-                        if (enteredOnce)
-                            finalString = finalString.substring(0, finalString.length() - 2);
-                        ((TextView) view.findViewById(R.id.amount_text)).setText(finalString);
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog b = builderSingle.create();
-                b.show();
+                addDetailedPayment(view);
             }
         });
         return view;
+    }
+
+    private void addDetailedPayment(final View view) {
+        AlertDialog.Builder builderSingle = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.payment_detail, null);
+        builderSingle.setView(dialogView);
+        builderSingle.setTitle("Amount and Method Of Payment:-");
+
+        SQLiteDatabase mDb = dbHelper.getReadableDatabase();
+        mopCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + ";", null);
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.payment_detail_edit,
+                mopCursor, new String[]{ReserveTable.COLUMN_TYPE}, new int[]{R.id.mop_caption}, 0);
+        adapter.setDropDownViewResource(R.layout.payment_detail_edit);
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(dialogView.findViewById(R.id.amount_text), InputMethodManager.SHOW_IMPLICIT);
+        final ListView paymentList = (ListView) dialogView.findViewById(R.id.payment_list);
+        paymentList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View v, int i, long l) {
+                v.findViewById(R.id.mop_amount).requestFocus();
+                Log.e("ERR", v.toString());
+            }
+        });
+        paymentList.setAdapter(adapter);
+
+        builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.e("CANCEL", String.valueOf(which));
+                dialog.dismiss();
+            }
+        });
+        builderSingle.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                Log.e("SAVE", String.valueOf(whichButton));
+                String finalString = "";
+                for (int i = 0; i < mopCursor.getCount(); i++) {
+                    View child = paymentList.getChildAt(i);
+                    String reserve = ((TextView) child.findViewById(R.id.mop_caption)).getText().toString();
+                    String amount = ((EditText) child.findViewById(R.id.mop_amount)).getText().toString();
+                    if (amount.equals("")) {
+                        amount = "0";
+                    }
+                    finalString += reserve + "-" + amount + ", ";
+                }
+                finalString = finalString.substring(0, finalString.length() - 2);
+                ((TextView) view.findViewById(R.id.amount_text)).setText(finalString);
+                dialog.dismiss();
+            }
+        });
+        AlertDialog b = builderSingle.create();
+        b.show();
     }
 
     @Override

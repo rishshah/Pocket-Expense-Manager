@@ -13,12 +13,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
+import com.project.pocketexpensemanager.database.table.ExpenseAmountTable;
 import com.project.pocketexpensemanager.database.table.ExpenseTable;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
@@ -26,7 +29,7 @@ public class SeeExpenses extends Fragment {
 
     private Display mDisplay;
     private DatabaseHelper dbHelper;
-    private Cursor transactionCursor;
+    private Cursor expenseCursor;
 
     @Nullable
     @Override
@@ -34,44 +37,34 @@ public class SeeExpenses extends Fragment {
         final View view = inflater.inflate(R.layout.see_expense, container, false);
         SQLiteDatabase mDb = dbHelper.getWritableDatabase();
 
-        int[] adapterRowViews = new int[]{R.id.category, R.id.description, R.id.date};
-        String[] adapterColViews = new String[]{ExpenseTable.COLUMN_CATEGORY, ExpenseTable.COLUMN_DESCRIPTION, ExpenseTable.COLUMN_DATE};
-        transactionCursor = mDb.rawQuery("SELECT * FROM " + ExpenseTable.TABLE_NAME + ";", null);
-        SimpleCursorAdapter transactionSca = new SimpleCursorAdapter(getActivity(), R.layout.expense_item,
-                transactionCursor, adapterColViews, adapterRowViews, 0);
-        transactionSca.setDropDownViewResource(R.layout.expense_item);
-        ListView transaction_list = (ListView) view.findViewById(R.id.expense_list);
-        transaction_list.setAdapter(transactionSca);
-//        transaction_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                TextView textView = (TextView) view.findViewById(android.R.id.text1);
-//                LayoutInflater inflater = getActivity().getLayoutInflater();
-//                final View editExpenseview = inflater.inflate(R.layout.create_expense, null);
-//                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
-//                transactionCursor = mDb.rawQuery("select * from " + ExpenseTable.TABLE_NAME + " where " +
-//                        ExpenseTable.COLUMN_AMOUNT + " = ? and " +
-//                        ExpenseTable.COLUMN_CATEGORY + " = ? and " +
-//                        ExpenseTable.COLUMN_DATE + " = ? and " +
-//                        ExpenseTable.COLUMN_DESCRIPTION + " = ?; ", new String[]{amount, category, date, description});
-//                if (transactionCursor != null && transactionCursor.getCount() == 0)
-//                    mDb.execSQL("update " + ExpenseTable.TABLE_NAME + " set (" +
-//                            ExpenseTable.COLUMN_AMOUNT + ", " +
-//                            ExpenseTable.COLUMN_CATEGORY + ", " +
-//                            ExpenseTable.COLUMN_DATE + ", " +
-//                            ExpenseTable.COLUMN_DESCRIPTION + ", " +
-//                            ExpenseTable.COLUMN_MOP + ", " +
-//                            "(?, ?, ?, ?, ?)  where " +
-//                            ExpenseTable.COLUMN_AMOUNT + " = ? and " +
-//                            ExpenseTable.COLUMN_CATEGORY + " = ? and " +
-//                            ExpenseTable.COLUMN_DATE + " = ? and " +
-//                            ExpenseTable.COLUMN_DESCRIPTION + " = ?; ", new String[]{amount, category, date, description});
-//                ((EditText) editExpenseview.findViewById(R.id.expense_date_text)).setText("");
-//                ((EditText) editExpenseview.findViewById(R.id.amount_text)).setText("");
-//                ((EditText) editExpenseview.findViewById(R.id.description_text)).setText("");
-//            }
-//        });
+        int[] adapterRowViews = new int[]{R.id.category, R.id.description, R.id.date, R.id.hidden_id, R.id.amount};
+        String[] adapterColViews = new String[]{ExpenseTable.COLUMN_CATEGORY, ExpenseTable.COLUMN_DESCRIPTION, ExpenseTable.COLUMN_DATE, "_id", "sum_amount"};
+        expenseCursor = mDb.rawQuery("select expense._id, " + ExpenseTable.COLUMN_CATEGORY + ", " + ExpenseTable.COLUMN_DESCRIPTION + ", " + ExpenseTable.COLUMN_DATE +
+                ", sum(" + ExpenseAmountTable.COLUMN_AMOUNT + ") as sum_amount " +
+                "from " + ExpenseTable.TABLE_NAME + ", " + ExpenseAmountTable.TABLE_NAME + " where " +
+                ExpenseTable.TABLE_NAME + "._id = " + ExpenseAmountTable.TABLE_NAME + "." + ExpenseAmountTable.COLUMN_EXPENSE_ID +
+                " group by " + ExpenseTable.TABLE_NAME + "._id; ", null);
+
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.expense_item,
+                expenseCursor, adapterColViews, adapterRowViews, 0);
+        adapter.setDropDownViewResource(R.layout.expense_item);
+        ListView expenseList = (ListView) view.findViewById(R.id.expense_list);
+        expenseList.setAdapter(adapter);
         mDb.close();
+
+        expenseList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String expenseId = ((TextView) view.findViewById(R.id.hidden_id)).getText().toString();
+                SQLiteDatabase mDb = dbHelper.getReadableDatabase();
+                expenseCursor = mDb.rawQuery("select * from " + ExpenseTable.TABLE_NAME + " where _id = ? ;", new String[]{expenseId});
+                if (expenseCursor.moveToFirst()) {
+                    mDisplay.displayLinkedFragment(HomeActivity.VIEW_PARTICULAR_EXPENSE, expenseCursor, ((TextView) view.findViewById(R.id.amount)).getText().toString());
+                }
+            }
+        });
+
+
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_create_expense);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,8 +110,8 @@ public class SeeExpenses extends Fragment {
 
     @Override
     public void onDetach() {
-        if (transactionCursor != null && !transactionCursor.isClosed())
-            transactionCursor.close();
+        if (expenseCursor != null && !expenseCursor.isClosed())
+            expenseCursor.close();
         super.onDetach();
     }
 }

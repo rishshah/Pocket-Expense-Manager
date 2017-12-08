@@ -3,6 +3,7 @@ package com.project.pocketexpensemanager;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -15,11 +16,13 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.project.pocketexpensemanager.constant.Constants;
+import com.project.pocketexpensemanager.database.table.ExpenseTable;
 import com.project.pocketexpensemanager.fragment.CreateExpense;
 import com.project.pocketexpensemanager.fragment.CreateTransfer;
 import com.project.pocketexpensemanager.fragment.SeeCategory;
 import com.project.pocketexpensemanager.fragment.SeeExpenses;
 import com.project.pocketexpensemanager.fragment.SeeReserve;
+import com.project.pocketexpensemanager.fragment.ViewParticularExpense;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
 import java.text.ParseException;
@@ -31,7 +34,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public static final int SEE_SUMMARY = 3;
     public static final int SEE_CATEGORY = 4;
     public static final int SEE_EXPENSES = 5;
-    public static final int SEE_RESERVE = 6;
+    public static final int SEE_TRANSFERS = 6;
+    public static final int SEE_RESERVE = 7;
+    public static final int VIEW_PARTICULAR_EXPENSE = 8;
+    public static final int EDIT_EXPENSE = 9;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +94,29 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public void displayLinkedFragment(int action, Cursor cursor, String data) {
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Fragment fragment = null;
+        switch (action) {
+            case VIEW_PARTICULAR_EXPENSE:
+                getSupportActionBar().setTitle(cursor.getString(3));
+                fragment = new ViewParticularExpense();
+                Bundle bundle = new Bundle();
+                bundle.putString("data", data);
+                bundle.putString("_id", cursor.getString(0));
+                bundle.putString(ExpenseTable.COLUMN_DATE, cursor.getString(1));
+                bundle.putString(ExpenseTable.COLUMN_CATEGORY, cursor.getString(2));
+                bundle.putString(ExpenseTable.COLUMN_DESCRIPTION, cursor.getString(3));
+                fragment.setArguments(bundle);
+                break;
+        }
+        if (fragment != null) {
+            fragmentTransaction.replace(R.id.fragment_container, fragment).commit();
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -100,24 +129,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_summary) {
             displayFragment(SEE_SUMMARY);
-        }
-        else if (id == R.id.nav_category) {
+        } else if (id == R.id.nav_category) {
             displayFragment(SEE_CATEGORY);
-        }
-        else if (id == R.id.nav_reserve) {
+        } else if (id == R.id.nav_reserve) {
             displayFragment(SEE_RESERVE);
-        }
-        else if (id == R.id.nav_settings) {
+        } else if (id == R.id.nav_settings) {
+            displayFragment(SEE_EXPENSES);             //TODO Settings page
+        } else if (id == R.id.nav_home) {
             displayFragment(SEE_EXPENSES);
-            //TODO Settings page
-        }
-        else if (id == R.id.nav_home) {
-            displayFragment(SEE_EXPENSES);
+        } else if (id == R.id.nav_transfer) {
+            displayFragment(SEE_TRANSFERS);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -125,7 +150,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public String parseDate(String c){
+    public String parseDate(String c) {
         try {
             return Constants.OUTPUT_FORMAT.format(Constants.INPUT_FORMAT.parse(c));
         } catch (ParseException e) {

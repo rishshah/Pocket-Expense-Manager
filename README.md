@@ -18,7 +18,7 @@
 
 
 ## Todo
-- Expense Edit page Creation and View page changes
+- Expense Edit page changes
 - Transfer View and Edit Page
 - Home Initial Page Creation
 - Recalculate balacnces and show in Reserve Pages

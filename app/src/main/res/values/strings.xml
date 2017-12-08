@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">Pocket Expense Manager</string>
+    <string name="title_activity_home">Home</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
     <string name="action_settings">Settings</string>
     <string name="rupee_symbol">Rupee Symbol</string>
     <string name="new_category">New Category</string>
@@ -17,4 +22,10 @@
     <string name="rishrock17_gmail_com">rishrock17@gmail.com</string>
     <string name="amount">Amount…</string>
     <string name="add_payment">Add Payment</string>
+    <string name="home">Home</string>
+    <string name="summary">Summary</string>
+    <string name="category2">Category</string>
+    <string name="reserve">Reserve</string>
+    <string name="transfers">Transfers</string>
+    <string name="settings">Settings</string>
 </resources>

@@ -80,12 +80,12 @@ public class SeeCategory extends Fragment {
                             " = ? where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category, current_category});
 
                 mDb.close();
-                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+                mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+                mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
             }
         });
         AlertDialog b = dialogBuilder.create();
