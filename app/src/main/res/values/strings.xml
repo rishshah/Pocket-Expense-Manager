@@ -28,4 +28,9 @@
     <string name="reserve">Reserve</string>
     <string name="transfers">Transfers</string>
     <string name="settings">Settings</string>
+    <string name="dummy_amt">123.45</string>
+    <string name="dummy_title">TITLE</string>
+    <string name="dummy_description_main">Main Description</string>
+    <string name="dummy_date">Jul 26, 2017</string>
+    <string name="dummy_description_sub">Sub Description</string>
 </resources>

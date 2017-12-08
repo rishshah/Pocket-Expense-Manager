@@ -17,6 +17,6 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 startActivity(new Intent(getApplicationContext(), HomeActivity.class));
             }
-        }, 800);
+        }, 600);
     }
 }

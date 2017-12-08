@@ -4,23 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     tools:context="com.project.pocketexpensemanager.HomeActivity">
 
-
     <EditText
-        android:id="@+id/expense_date_text"
+        android:id="@+id/description_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_marginTop="50dp"
-        android:clickable="false"
-        android:hint="@string/date_of_expense"
-        android:inputType="date" />
+        android:hint="@string/extra_description"
+        android:inputType="textMultiLine" />
 
     <TextView
         android:id="@+id/spinner_caption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/expense_date_text"
+        android:layout_below="@id/description_text"
         android:layout_marginTop="30dp"
         android:text="@string/category" />
 
@@ -43,8 +43,8 @@
             android:id="@+id/amount_text"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:gravity="center|start"
             android:layout_weight="3"
+            android:gravity="center|start"
             android:text="@string/method_of_payment"
             android:textSize="18sp" />
 
@@ -58,16 +58,16 @@
 
     </LinearLayout>
 
+
     <EditText
-        android:id="@+id/description_text"
+        android:id="@+id/date_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
+        android:layout_marginTop="50dp"
         android:layout_below="@+id/amount"
-        android:layout_marginTop="30dp"
-        android:hint="@string/extra_description"
-        android:inputType="textMultiLine" />
-
+        android:clickable="false"
+        android:hint="@string/date_of_expense"
+        android:inputType="none" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_save_expxense"

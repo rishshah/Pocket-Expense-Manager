@@ -29,11 +29,13 @@ import com.project.pocketexpensemanager.database.DatabaseHelper;
 import com.project.pocketexpensemanager.database.table.CategoryTable;
 import com.project.pocketexpensemanager.database.table.ExpenseAmountTable;
 import com.project.pocketexpensemanager.database.table.ExpenseTable;
+import com.project.pocketexpensemanager.database.table.LogTable;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
 import java.text.ParseException;
+import java.util.Calendar;
 
-public class ViewParticularExpense extends Fragment {
+public class SeeExpense extends Fragment {
     private Display mDisplay;
     private DatabaseHelper dbHelper;
     private Cursor expenseCursor, reserveCursor, categoryCursor;
@@ -41,7 +43,7 @@ public class ViewParticularExpense extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.view_particular_expense, container, false);
+        final View view = inflater.inflate(R.layout.see_expense, container, false);
         ((TextView) view.findViewById(R.id.amount)).setText(getArguments().getString("data"));
         ((TextView) view.findViewById(R.id.date)).setText(getArguments().getString(ExpenseTable.COLUMN_DATE));
         ((TextView) view.findViewById(R.id.category)).setText(getArguments().getString(ExpenseTable.COLUMN_CATEGORY));
@@ -52,16 +54,16 @@ public class ViewParticularExpense extends Fragment {
 
         reserveCursor = mDb.rawQuery("select * from " + ExpenseAmountTable.TABLE_NAME + " where " +
                 ExpenseAmountTable.COLUMN_EXPENSE_ID + " = ? ;", new String[]{getArguments().getString("_id")});
-        SimpleCursorAdapter transactionSca = new SimpleCursorAdapter(getActivity(), R.layout.payment_detail_edit,
+        SimpleCursorAdapter transactionSca = new SimpleCursorAdapter(getActivity(), R.layout.payment_detail_list_item,
                 reserveCursor, adapterColViews, adapterRowViews, 0);
-        transactionSca.setDropDownViewResource(R.layout.payment_detail_edit);
+        transactionSca.setDropDownViewResource(R.layout.payment_detail_list_item);
         ListView expense_list = (ListView) view.findViewById(R.id.mop_list);
         expense_list.setAdapter(transactionSca);
 
         view.findViewById(R.id.fab_edit_header).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showEditReserveDialog(view);
+                showEditExpenseDialog(view);
             }
         });
 
@@ -74,7 +76,7 @@ public class ViewParticularExpense extends Fragment {
         return view;
     }
 
-    private void showEditReserveDialog(final View view) {
+    private void showEditExpenseDialog(final View view) {
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.edit_expense_header, null);
@@ -89,22 +91,22 @@ public class ViewParticularExpense extends Fragment {
         categorySca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ((Spinner) dialogView.findViewById(R.id.category_spinner)).setAdapter(categorySca);
         // Set current category
-        categoryCursor = mDb.rawQuery("SELECT _id FROM " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ?;", new String[]{getArguments().getString(ExpenseTable.COLUMN_CATEGORY)});
+        categoryCursor = mDb.rawQuery("SELECT _id FROM " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ?;", new String[]{((TextView) view.findViewById(R.id.category)).getText().toString()});
         if (categoryCursor.moveToFirst()) {
             ((Spinner) dialogView.findViewById(R.id.category_spinner)).setSelection(categoryCursor.getInt(0)-1);
         }
         mDb.close();
 
         //Set current date
-        ((TextView) dialogView.findViewById(R.id.expense_date_text)).setText(getArguments().getString(ExpenseTable.COLUMN_DATE));
+        ((TextView) dialogView.findViewById(R.id.date_text)).setText(getArguments().getString(ExpenseTable.COLUMN_DATE));
         // Date Picker
-        dialogView.findViewById(R.id.expense_date_text).setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        dialogView.findViewById(R.id.date_text).setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     String date = "";
                     try {
-                         date = Constants.INPUT_FORMAT.format(Constants.OUTPUT_FORMAT.parse(getArguments().getString(ExpenseTable.COLUMN_DATE)));
+                         date = Constants.INPUT_FORMAT.format(Constants.OUTPUT_FORMAT.parse(((TextView) view.findViewById(R.id.date)).getText().toString()));
                     } catch (ParseException e) {
                         Log.e("DATE ERR..", e.getMessage());
                     }
@@ -116,8 +118,7 @@ public class ViewParticularExpense extends Fragment {
                     DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                         public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
                             String date = String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear);
-                            ((EditText) dialogView.findViewById(R.id.expense_date_text)).setText(mDisplay.parseDate(date));
-                            dialogView.findViewById(R.id.description_text).requestFocus();
+                            ((EditText) dialogView.findViewById(R.id.date_text)).setText(mDisplay.parseDate(date));
                         }
                     }, mYear, mMonth, mDay);
                     mDatePicker.setTitle("Select date");
@@ -127,12 +128,12 @@ public class ViewParticularExpense extends Fragment {
         });
 
         // Set current description
-        ((TextView) dialogView.findViewById(R.id.description_text)).setText(getArguments().getString(ExpenseTable.COLUMN_DESCRIPTION));
+        ((TextView) dialogView.findViewById(R.id.description_text)).setText(((AppCompatActivity) getActivity()).getSupportActionBar().getTitle());
 
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String newDescription = ((EditText) dialogView.findViewById(R.id.description_text)).getText().toString();
-                String newDate = ((EditText) dialogView.findViewById(R.id.expense_date_text)).getText().toString();
+                String newDate = ((EditText) dialogView.findViewById(R.id.date_text)).getText().toString();
                 String newCategory = ((TextView) ((Spinner) dialogView.findViewById(R.id.category_spinner)).getSelectedView()).getText().toString();
 
                 ((TextView) view.findViewById(R.id.date)).setText(newDate);
@@ -166,6 +167,7 @@ public class ViewParticularExpense extends Fragment {
             mDb.execSQL("delete from " + ExpenseAmountTable.TABLE_NAME + "  where " + ExpenseAmountTable.COLUMN_EXPENSE_ID + " = ?; ",
                     new String[]{getArguments().getString("_id")});
 
+            float amt = 0f;
             for (int i = 0; i < reserveCursor.getCount(); i++) {
                 View child = ((ListView) view.findViewById(R.id.mop_list)).getChildAt(i);
                 String reserve = ((TextView) child.findViewById(R.id.mop_caption)).getText().toString();
@@ -173,6 +175,7 @@ public class ViewParticularExpense extends Fragment {
                 if (amount.equals("")) {
                     amount = "0";
                 }
+                amt += Float.valueOf(amount);
                 mDb.execSQL("insert into " + ExpenseAmountTable.TABLE_NAME + " (" +
                                 ExpenseAmountTable.COLUMN_EXPENSE_ID + "," +
                                 ExpenseAmountTable.COLUMN_MOP + "," +
@@ -180,8 +183,22 @@ public class ViewParticularExpense extends Fragment {
                                 ") " + " values (?, ?, ?);",
                         new String[]{getArguments().getString("_id"), reserve, amount});
             }
+            Calendar calendar = Calendar.getInstance();
+            String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
+                    String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+            mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
+                            LogTable.COLUMN_TITLE + "," +
+                            LogTable.COLUMN_DESCRIPTION_MAIN + "," +
+                            LogTable.COLUMN_DESCRIPTION_SUB + "," +
+                            LogTable.COLUMN_AMOUNT + "," +
+                            LogTable.COLUMN_HIDDEN_ID + "," +
+                            LogTable.COLUMN_LOG_DATE + "," +
+                            LogTable.COLUMN_EVENT_DATE + "," +
+                            LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
+                    new String[]{newCategory, newDescription, "Expense Updated", String.valueOf(amt), getArguments().getString("_id"), currentDate, newDate, ExpenseTable.TABLE_NAME});
+
         }
-        mDisplay.displayFragment(HomeActivity.SEE_EXPENSES);
+        mDisplay.displayFragment(HomeActivity.SEE_LOG);
     }
 
 

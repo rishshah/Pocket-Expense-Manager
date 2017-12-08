@@ -20,9 +20,9 @@ import com.project.pocketexpensemanager.database.table.ExpenseTable;
 import com.project.pocketexpensemanager.fragment.CreateExpense;
 import com.project.pocketexpensemanager.fragment.CreateTransfer;
 import com.project.pocketexpensemanager.fragment.SeeCategory;
-import com.project.pocketexpensemanager.fragment.SeeExpenses;
+import com.project.pocketexpensemanager.fragment.SeeLog;
 import com.project.pocketexpensemanager.fragment.SeeReserve;
-import com.project.pocketexpensemanager.fragment.ViewParticularExpense;
+import com.project.pocketexpensemanager.fragment.SeeExpense;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
 import java.text.ParseException;
@@ -33,11 +33,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public static final int CREATE_TRANSFER = 2;
     public static final int SEE_SUMMARY = 3;
     public static final int SEE_CATEGORY = 4;
-    public static final int SEE_EXPENSES = 5;
+    public static final int SEE_LOG = 5;
     public static final int SEE_TRANSFERS = 6;
     public static final int SEE_RESERVE = 7;
     public static final int VIEW_PARTICULAR_EXPENSE = 8;
-    public static final int EDIT_EXPENSE = 9;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +45,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("My Expenses");
-        displayFragment(SEE_EXPENSES);
+        displayFragment(SEE_LOG);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -67,9 +66,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case SEE_SUMMARY:
                 getSupportActionBar().setTitle("Summary");
                 break;
-            case SEE_EXPENSES:
+            case SEE_LOG:
                 getSupportActionBar().setTitle("Recent Activities");
-                fragment = new SeeExpenses();
+                fragment = new SeeLog();
                 break;
             case SEE_RESERVE:
                 getSupportActionBar().setTitle("Existing Reserves");
@@ -98,11 +97,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         Fragment fragment = null;
+        Bundle bundle = new Bundle();
         switch (action) {
             case VIEW_PARTICULAR_EXPENSE:
                 getSupportActionBar().setTitle(cursor.getString(3));
-                fragment = new ViewParticularExpense();
-                Bundle bundle = new Bundle();
+                fragment = new SeeExpense();
                 bundle.putString("data", data);
                 bundle.putString("_id", cursor.getString(0));
                 bundle.putString(ExpenseTable.COLUMN_DATE, cursor.getString(1));
@@ -138,9 +137,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_reserve) {
             displayFragment(SEE_RESERVE);
         } else if (id == R.id.nav_settings) {
-            displayFragment(SEE_EXPENSES);             //TODO Settings page
+            displayFragment(SEE_LOG);             //TODO Settings page
         } else if (id == R.id.nav_home) {
-            displayFragment(SEE_EXPENSES);
+            displayFragment(SEE_LOG);
         } else if (id == R.id.nav_transfer) {
             displayFragment(SEE_TRANSFERS);
         }

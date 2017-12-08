@@ -3,10 +3,12 @@ package com.project.pocketexpensemanager.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.project.pocketexpensemanager.database.table.CategoryTable;
 import com.project.pocketexpensemanager.database.table.ExpenseAmountTable;
 import com.project.pocketexpensemanager.database.table.ExpenseTable;
+import com.project.pocketexpensemanager.database.table.LogTable;
 import com.project.pocketexpensemanager.database.table.ReserveTable;
 import com.project.pocketexpensemanager.database.table.TransferTable;
 
@@ -38,6 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ExpenseTable.onCreate(database);
         TransferTable.onCreate(database);
         ExpenseAmountTable.onCreate(database);
+        LogTable.onCreate(database);
     }
 
     // Method is called during an upgrade of the database,
@@ -50,6 +53,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ExpenseTable.onUpgrade(database, oldVersion, newVersion);
         TransferTable.onUpgrade(database, oldVersion, newVersion);
         ExpenseAmountTable.onUpgrade(database, oldVersion, newVersion);
+        LogTable.onUpgrade(database, oldVersion, newVersion);
     }
 }
 

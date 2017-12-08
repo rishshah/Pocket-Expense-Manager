@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +32,7 @@ public class SeeCategory extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.see_category, container, false);
+        final View view = inflater.inflate(R.layout.basic_list_fab, container, false);
         int[] adapterRowViews = new int[]{android.R.id.text1};
 
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
@@ -41,7 +40,7 @@ public class SeeCategory extends Fragment {
         SimpleCursorAdapter categorySca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1,
                 categoryCursor, new String[]{CategoryTable.COLUMN_TYPE}, adapterRowViews, 0);
         categorySca.setDropDownViewResource(android.R.layout.simple_list_item_1);
-        final ListView category_list = (ListView) view.findViewById(R.id.category_list);
+        final ListView category_list = (ListView) view.findViewById(R.id.list);
         category_list.setAdapter(categorySca);
         category_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -52,8 +51,7 @@ public class SeeCategory extends Fragment {
         });
         mDb.close();
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_create_category);
-        fab.setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showCreateCategoryDialog();

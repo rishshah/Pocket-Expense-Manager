@@ -7,7 +7,7 @@
 - Can choose all reserves from which payments can be done (DONE)
 - Keep track of current state of money in each of the reserve (DONE)
 - Can transfer money from one reserve to other (DONE)
-- Can view past expenses and transfers (TRYING)
+- Can view past expenses and transfers (DONE)
 
 ## Advanced Features
 - Summary regarding month wise/ year wise expenditure (TRYING)
@@ -18,9 +18,8 @@
 
 
 ## Todo
-- Expense Edit page changes
-- Transfer View and Edit Page
 - Home Initial Page Creation
 - Recalculate balacnces and show in Reserve Pages
 - Summary page for category and figure out way to do month/sem/year wise
 - Pie chart option check
+- Date picker input problems
