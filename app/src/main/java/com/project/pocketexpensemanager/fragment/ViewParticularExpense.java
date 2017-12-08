@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,14 +24,14 @@ import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
+import com.project.pocketexpensemanager.constant.Constants;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
 import com.project.pocketexpensemanager.database.table.CategoryTable;
 import com.project.pocketexpensemanager.database.table.ExpenseAmountTable;
 import com.project.pocketexpensemanager.database.table.ExpenseTable;
-import com.project.pocketexpensemanager.database.table.ReserveTable;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
-import java.util.Calendar;
+import java.text.ParseException;
 
 public class ViewParticularExpense extends Fragment {
     private Display mDisplay;
@@ -80,18 +81,18 @@ public class ViewParticularExpense extends Fragment {
         dialogBuilder.setView(dialogView);
         dialogBuilder.setTitle("Edit Expense");
 
-        // Set current category
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
-        categoryCursor = mDb.rawQuery("SELECT _id FROM " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ?;", new String[]{getArguments().getString(ExpenseTable.COLUMN_CATEGORY)});
-        if (categoryCursor.moveToFirst()) {
-            ((Spinner) dialogView.findViewById(R.id.category_spinner)).setSelection(categoryCursor.getInt(0));
-        }
         // Category picker
         categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + ";", null);
         SimpleCursorAdapter categorySca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_spinner_item,
                 categoryCursor, new String[]{CategoryTable.COLUMN_TYPE}, new int[]{android.R.id.text1}, 0);
         categorySca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ((Spinner) dialogView.findViewById(R.id.category_spinner)).setAdapter(categorySca);
+        // Set current category
+        categoryCursor = mDb.rawQuery("SELECT _id FROM " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ?;", new String[]{getArguments().getString(ExpenseTable.COLUMN_CATEGORY)});
+        if (categoryCursor.moveToFirst()) {
+            ((Spinner) dialogView.findViewById(R.id.category_spinner)).setSelection(categoryCursor.getInt(0)-1);
+        }
         mDb.close();
 
         //Set current date
@@ -101,10 +102,16 @@ public class ViewParticularExpense extends Fragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    Calendar currentDate = Calendar.getInstance();
-                    int mYear = currentDate.get(Calendar.YEAR);
-                    int mMonth = currentDate.get(Calendar.MONTH);
-                    int mDay = currentDate.get(Calendar.DAY_OF_MONTH);
+                    String date = "";
+                    try {
+                         date = Constants.INPUT_FORMAT.format(Constants.OUTPUT_FORMAT.parse(getArguments().getString(ExpenseTable.COLUMN_DATE)));
+                    } catch (ParseException e) {
+                        Log.e("DATE ERR..", e.getMessage());
+                    }
+                    String[] dateParts = date.split(" : ");
+                    int mYear = Integer.valueOf(dateParts[2]);
+                    int mMonth = Integer.valueOf(dateParts[1]) - 1;
+                    int mDay = Integer.valueOf(dateParts[0]);
 
                     DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                         public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
@@ -195,6 +202,8 @@ public class ViewParticularExpense extends Fragment {
             expenseCursor.close();
         if (categoryCursor != null && !categoryCursor.isClosed())
             categoryCursor.close();
+        if (reserveCursor != null && !reserveCursor.isClosed())
+            reserveCursor.close();
         super.onDetach();
     }
 }
