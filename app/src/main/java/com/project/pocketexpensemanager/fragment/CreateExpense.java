@@ -113,7 +113,7 @@ public class CreateExpense extends Fragment {
 
                     Calendar calendar = Calendar.getInstance();
                     String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
-                            String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)));
+                            String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
                     mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
                                     LogTable.COLUMN_TITLE + "," +
                                     LogTable.COLUMN_DESCRIPTION_MAIN + "," +
