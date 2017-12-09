@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.project.pocketexpensemanager.constant.Constants;
 import com.project.pocketexpensemanager.database.table.ExpenseTable;
@@ -31,12 +32,12 @@ import java.text.ParseException;
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Display {
     public static final int CREATE_EXPENSE = 1;
     public static final int CREATE_TRANSFER = 2;
-    public static final int SEE_SUMMARY = 3;
-    public static final int SEE_CATEGORY = 4;
     public static final int SEE_LOG = 5;
-    public static final int SEE_TRANSFERS = 6;
-    public static final int SEE_RESERVE = 7;
-    public static final int VIEW_PARTICULAR_EXPENSE = 8;
+    public static final int SEE_CATEGORY = 4;
+    public static final int SEE_RESERVE = 6;
+    public static final int SEE_SUMMARY = 3;
+    public static final int SEE_SETTINGS = 8;
+    public static final int VIEW_PARTICULAR_EXPENSE = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +45,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("My Expenses");
-        displayFragment(SEE_LOG);
+
+        if (getIntent().getBooleanExtra(LoginActivity.NEWUSER, false)) {
+            displayFragment(SEE_RESERVE);
+        } else {
+            displayFragment(SEE_LOG);
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -53,8 +58,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        NavigationView nav = (NavigationView) findViewById(R.id.nav_view);
+        ((TextView) nav.getHeaderView(0).findViewById(R.id.username)).setText(getIntent().getStringExtra(LoginActivity.USERNAME));
+        ((TextView) nav.getHeaderView(0).findViewById(R.id.email)).setText(getIntent().getStringExtra(LoginActivity.EMAIL));
+        nav.setNavigationItemSelectedListener(this);
     }
 
     @Override
@@ -66,17 +73,21 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case SEE_SUMMARY:
                 getSupportActionBar().setTitle("Summary");
                 break;
+            case SEE_SETTINGS:
+                getSupportActionBar().setTitle("Settings");
+                break;
+
             case SEE_LOG:
                 getSupportActionBar().setTitle("Recent Activities");
                 fragment = new SeeLog();
                 break;
-            case SEE_RESERVE:
-                getSupportActionBar().setTitle("Existing Reserves");
-                fragment = new SeeReserve();
-                break;
             case SEE_CATEGORY:
                 getSupportActionBar().setTitle("Existing Categories");
                 fragment = new SeeCategory();
+                break;
+            case SEE_RESERVE:
+                getSupportActionBar().setTitle("Existing Reserves");
+                fragment = new SeeReserve();
                 break;
             case CREATE_EXPENSE:
                 getSupportActionBar().setTitle("New Expense");
@@ -132,16 +143,16 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_summary) {
             displayFragment(SEE_SUMMARY);
+            //TODO Summary Page
         } else if (id == R.id.nav_category) {
             displayFragment(SEE_CATEGORY);
         } else if (id == R.id.nav_reserve) {
             displayFragment(SEE_RESERVE);
         } else if (id == R.id.nav_settings) {
-            displayFragment(SEE_LOG);             //TODO Settings page
+            displayFragment(SEE_SETTINGS);
+            //TODO Settings Page
         } else if (id == R.id.nav_home) {
             displayFragment(SEE_LOG);
-        } else if (id == R.id.nav_transfer) {
-            displayFragment(SEE_TRANSFERS);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

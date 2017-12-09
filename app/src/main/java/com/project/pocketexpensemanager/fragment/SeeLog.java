@@ -70,7 +70,7 @@ public class SeeLog extends Fragment {
                 LogTable.COLUMN_TYPE,
                 LogTable.COLUMN_HIDDEN_ID};
 
-        logCursor = mDb.rawQuery("select * from " + LogTable.TABLE_NAME + ";", null);
+        logCursor = mDb.rawQuery("select * from " + LogTable.TABLE_NAME + " order by _id desc;", null);
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.log_item,
                 logCursor, adapterColViews, adapterRowViews, 0);
         adapter.setDropDownViewResource(R.layout.log_item);

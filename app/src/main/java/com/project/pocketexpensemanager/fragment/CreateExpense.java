@@ -84,7 +84,7 @@ public class CreateExpense extends Fragment {
             public void onClick(View v) {
                 String date = ((EditText) view.findViewById(R.id.date_text)).getText().toString();
                 String category = ((TextView) ((Spinner) view.findViewById(R.id.category_spinner)).getSelectedView()).getText().toString();
-                String description = ((EditText) view.findViewById(R.id.description_text)).getText().toString();
+                String description = ((EditText) view.findViewById(R.id.description_text)) .getText().toString();
 
                 SQLiteDatabase mDb = dbHelper.getWritableDatabase();
                 mDb.execSQL("insert into " + ExpenseTable.TABLE_NAME + " (" +

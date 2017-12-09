@@ -18,10 +18,6 @@
             android:icon="@drawable/ic_menu_share"
             android:title="@string/reserve" />
         <item
-            android:id="@+id/nav_transfer"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/transfers" />
-        <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_menu_manage"
             android:title="@string/settings" />

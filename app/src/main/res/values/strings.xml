@@ -33,4 +33,7 @@
     <string name="dummy_description_main">Main Description</string>
     <string name="dummy_date">Jul 26, 2017</string>
     <string name="dummy_description_sub">Sub Description</string>
+    <string name="email_id">Email Id</string>
+    <string name="username">Username</string>
+    <string name="continue_button">Continue</string>
 </resources>
