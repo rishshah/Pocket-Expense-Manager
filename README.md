@@ -8,6 +8,8 @@
 - Keep track of current state of money in each of the reserve (DONE)
 - Can transfer money from one reserve to other (DONE)
 - Can view past expenses and transfers (DONE)
+- Home Initial Page Creation (DONE)
+- Recalculate balacnces and show in Reserve Pages (DONE)
 
 ## Advanced Features
 - Summary regarding month wise/ year wise expenditure (TRYING)
@@ -16,10 +18,7 @@
 - Multiple mode selection at the time of payment creation (DONE)
 - Linking with google drive for backup (NOPE)
 
-
 ## Todo
-- Home Initial Page Creation
-- Recalculate balacnces and show in Reserve Pages
 - Summary page for category and figure out way to do month/sem/year wise
 - Pie chart option check
 - Date picker input problems

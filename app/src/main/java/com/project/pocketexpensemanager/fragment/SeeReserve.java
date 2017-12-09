@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,9 @@ import android.widget.TextView;
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
+import com.project.pocketexpensemanager.database.table.ExpenseAmountTable;
 import com.project.pocketexpensemanager.database.table.ReserveTable;
+import com.project.pocketexpensemanager.database.table.TransferTable;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
 public class SeeReserve extends Fragment {
@@ -34,19 +37,22 @@ public class SeeReserve extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.basic_list_fab, container, false);
 
-        int[] adapterRowViews = new int[]{android.R.id.text1};
+        int[] adapterRowViews = new int[]{android.R.id.text1, android.R.id.text2};
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
-        reserveCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + ";", null);
-        SimpleCursorAdapter reserveSca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1,
-                reserveCursor, new String[]{ReserveTable.COLUMN_TYPE}, adapterRowViews, 0);
-        reserveSca.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        reserveCursor = mDb.rawQuery("with a(" + ReserveTable.COLUMN_TYPE + ",amt1) as (select " + ExpenseAmountTable.COLUMN_MOP + ", sum(" + ExpenseAmountTable.COLUMN_AMOUNT + ") from " + ExpenseAmountTable.TABLE_NAME + " group by " + ExpenseAmountTable.COLUMN_MOP + "), " +
+                "b(" + ReserveTable.COLUMN_TYPE + ",amt2) as (select " + TransferTable.COLUMN_FROM_MODE + ", sum(" + TransferTable.COLUMN_AMOUNT + ")  from " + TransferTable.TABLE_NAME + " group by " + TransferTable.COLUMN_FROM_MODE + ")," +
+                "c(" + ReserveTable.COLUMN_TYPE + ",amt3) as (select " + TransferTable.COLUMN_TO_MODE + ", sum(" + TransferTable.COLUMN_AMOUNT + ")  from " + TransferTable.TABLE_NAME + " group by " + TransferTable.COLUMN_TO_MODE + ")," +
+                "final_one(_id, " + ReserveTable.COLUMN_TYPE + ", " + ReserveTable.COLUMN_START_AMT + ", amt1, amt2, amt3) as (select _id, " + ReserveTable.COLUMN_TYPE + ",  CASE WHEN " + ReserveTable.COLUMN_START_AMT + " IS NULL THEN 0 ELSE " + ReserveTable.COLUMN_START_AMT + " END, CASE WHEN amt1 IS NULL THEN 0 ELSE amt1 END, CASE WHEN amt2 IS NULL THEN 0 ELSE amt2 END, CASE WHEN amt3 IS NULL THEN 0 ELSE amt3 END from (((reserve left natural outer join a) left natural outer join b) left natural outer join c))" +
+                "select _id, " + ReserveTable.COLUMN_TYPE + ",  (" + ReserveTable.COLUMN_START_AMT + " + amt3 - amt2 - amt1) as balance from final_one;", null);
+        SimpleCursorAdapter reserveSca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_2,
+                reserveCursor, new String[]{ReserveTable.COLUMN_TYPE, "balance"}, adapterRowViews, 0);
+        reserveSca.setDropDownViewResource(android.R.layout.simple_list_item_2);
         final ListView reserve_list = (ListView) view.findViewById(R.id.list);
         reserve_list.setAdapter(reserveSca);
         reserve_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TextView textView = (TextView) view.findViewById(android.R.id.text1);
-                showEditReserveDialog(textView.getText().toString());
+                showEditReserveDialog(((TextView) view.findViewById(android.R.id.text1)).getText().toString());
             }
         });
         mDb.close();
@@ -68,17 +74,22 @@ public class SeeReserve extends Fragment {
         final View dialogView = inflater.inflate(R.layout.create_reserve, null);
         dialogBuilder.setView(dialogView);
         ((EditText) dialogView.findViewById(R.id.reserve_text)).setText(current_reserve);
+//        ((EditText) dialogView.findViewById(R.id.reserve_amount)).setText(current_start_amt);
         dialogBuilder.setTitle("Edit Reserve");
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String reserve = ((EditText) dialogView.findViewById(R.id.reserve_text)).getText().toString();
+                String startAmount = ((EditText) dialogView.findViewById(R.id.reserve_amount)).getText().toString();
                 SQLiteDatabase mDb = dbHelper.getWritableDatabase();
                 reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
-                if (reserveCursor != null && reserveCursor.getCount() == 0)
+                Log.e("AMT", reserve + " ; " + startAmount);
+                if (reserveCursor != null && (reserveCursor.getCount() == 0 || reserveCursor.moveToFirst() && reserveCursor.getString(1).equals(current_reserve))) {
                     mDb.execSQL("update " + ReserveTable.TABLE_NAME + " set " +
-                            ReserveTable.COLUMN_TYPE +
-                            " = ? where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve, current_reserve});
-
+                                    ReserveTable.COLUMN_TYPE + " = ?, " +
+                                    ReserveTable.COLUMN_START_AMT + " = ? where " + ReserveTable.COLUMN_TYPE + " = ? ;",
+                            new String[]{reserve, startAmount, current_reserve});
+                    Log.e("AMT", reserve + " ; " + startAmount);
+                }
                 mDb.close();
                 mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
             }
@@ -102,12 +113,14 @@ public class SeeReserve extends Fragment {
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String reserve = ((EditText) dialogView.findViewById(R.id.reserve_text)).getText().toString();
+                String startAmount = ((EditText) dialogView.findViewById(R.id.reserve_amount)).getText().toString();
                 SQLiteDatabase mDb = dbHelper.getWritableDatabase();
                 reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
                 if (reserveCursor != null && reserveCursor.getCount() == 0)
                     mDb.execSQL("insert into " + ReserveTable.TABLE_NAME + " (" +
-                            ReserveTable.COLUMN_TYPE +
-                            ") " + " values (?);", new String[]{reserve});
+                            ReserveTable.COLUMN_TYPE + ", " +
+                            ReserveTable.COLUMN_START_AMT +
+                            ") " + " values (?, ?);", new String[]{reserve, startAmount});
                 mDb.close();
                 mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
             }

@@ -8,11 +8,13 @@ public class ReserveTable implements BaseColumns{
 
     public static final String TABLE_NAME = "reserve";
     public static final String COLUMN_TYPE = "type";
+    public static final String COLUMN_START_AMT = "start_amount";
 
     // Database creation SQL statement
     private static final String TABLE_CREATE = "create table " + TABLE_NAME + " (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            COLUMN_TYPE + " VARCHAR(20)" +
+            COLUMN_TYPE + " VARCHAR(20), " +
+            COLUMN_START_AMT + " FLOAT" +
             ");";
 
     public static void onCreate(SQLiteDatabase database) {
