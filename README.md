@@ -22,3 +22,16 @@
 - Summary page for category and figure out way to do month/sem/year wise
 - Pie chart option check
 - Date picker input problems
+
+##Summary Feature Planning
+- Category wise expenditure pie chart (options of mothly, annually and weekly)
+- Reserve wise expenditure pie chart (options of mothly, annually and weekly)
+- List of expenses
+- List of transfers
+- Over the budget features
+
+## Bugs
+- Expense, transfer delete feature.  
+- Keyboard should be gone when presed enter
+- Start amount reserve list item
+- Not allowing expense, transfers that make the balance negative
