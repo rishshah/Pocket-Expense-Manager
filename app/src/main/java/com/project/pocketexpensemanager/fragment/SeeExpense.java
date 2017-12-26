@@ -75,6 +75,13 @@ public class SeeExpense extends Fragment {
                 updateExpense(view);
             }
         });
+
+        view.findViewById(R.id.fab_delete_expense).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteExpense();
+            }
+        });
         return view;
     }
 
@@ -208,9 +215,42 @@ public class SeeExpense extends Fragment {
                     new String[]{newCategory, newDescription, "Expense Updated", String.valueOf(amt), getArguments().getString("_id"), currentDate, newDate, ExpenseTable.TABLE_NAME});
 
         }
+        mDb.close();
         mDisplay.displayFragment(HomeActivity.SEE_LOG);
     }
 
+    private void deleteExpense() {
+        SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+        expenseCursor = mDb.rawQuery("select * from " + ExpenseTable.TABLE_NAME + " where _id = ?", new String[]{getArguments().getString("_id")});
+        if (expenseCursor.moveToFirst()) {
+
+            reserveCursor = mDb.rawQuery("select * from " + ExpenseAmountTable.TABLE_NAME + "  where " + ExpenseAmountTable.COLUMN_EXPENSE_ID + " = ?; ",
+                    new String[]{getArguments().getString("_id")});
+
+            float amt = 0f;
+            while (reserveCursor.moveToNext()) {
+                amt += reserveCursor.getFloat(2);
+            }
+
+            mDb.execSQL("delete from " + ExpenseTable.TABLE_NAME + " where _id = ?", new String[]{getArguments().getString("_id")});
+
+            Calendar calendar = Calendar.getInstance();
+            String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
+                    String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+            mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
+                            LogTable.COLUMN_TITLE + "," +
+                            LogTable.COLUMN_DESCRIPTION_MAIN + "," +
+                            LogTable.COLUMN_DESCRIPTION_SUB + "," +
+                            LogTable.COLUMN_AMOUNT + "," +
+                            LogTable.COLUMN_HIDDEN_ID + "," +
+                            LogTable.COLUMN_LOG_DATE + "," +
+                            LogTable.COLUMN_EVENT_DATE + "," +
+                            LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
+                    new String[]{expenseCursor.getString(2), expenseCursor.getString(3), "Expense Deleted", String.valueOf(amt), getArguments().getString("_id"), currentDate, expenseCursor.getString(1), ExpenseTable.TABLE_NAME});
+        }
+        mDb.close();
+        mDisplay.displayFragment(HomeActivity.SEE_LOG);
+    }
 
     @Override
     public void onAttach(Context context) {

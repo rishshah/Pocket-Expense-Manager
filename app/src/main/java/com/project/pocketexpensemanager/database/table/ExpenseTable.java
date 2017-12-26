@@ -17,7 +17,7 @@ public class ExpenseTable implements BaseColumns{
             COLUMN_DATE + " DATETIME, " +
             COLUMN_CATEGORY + " VARCHAR(20), " +
             COLUMN_DESCRIPTION + " TEXT, " +
-            "FOREIGN KEY("+ COLUMN_CATEGORY +") REFERENCES " + CategoryTable.TABLE_NAME + "(" + CategoryTable.COLUMN_TYPE + ") ON UPDATE CASCADE" +
+            "FOREIGN KEY("+ COLUMN_CATEGORY +") REFERENCES " + CategoryTable.TABLE_NAME + "(" + CategoryTable.COLUMN_TYPE + ") ON UPDATE CASCADE ON DELETE CASCADE" +
             ");";
 
 

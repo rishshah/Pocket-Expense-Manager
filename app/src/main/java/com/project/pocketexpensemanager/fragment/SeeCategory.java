@@ -93,6 +93,15 @@ public class SeeCategory extends Fragment {
                 mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
             }
         });
+        dialogBuilder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                mDb.execSQL("delete from " + CategoryTable.TABLE_NAME  +
+                            " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{current_category});
+                mDb.close();
+                mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
+            }
+        });
         AlertDialog b = dialogBuilder.create();
         b.show();
     }

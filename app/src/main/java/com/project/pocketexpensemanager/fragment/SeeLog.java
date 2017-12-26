@@ -115,7 +115,7 @@ public class SeeLog extends Fragment {
         });
         registerForContextMenu(fab);
 
-        if(getActivity().getCurrentFocus()!=null) {
+        if (getActivity().getCurrentFocus() != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
         }
@@ -198,7 +198,7 @@ public class SeeLog extends Fragment {
         amountText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent keyEvent) {
-                if(keyCode == 66 && keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER){
+                if (keyCode == 66 && keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 }
                 return false;
@@ -242,18 +242,43 @@ public class SeeLog extends Fragment {
                         new String[]{newFromMode + " -> " + newToMode, newDescription, "Transfer Updated", newAmount, id, currentDate, newDate, TransferTable.TABLE_NAME});
 
                 mDisplay.displayFragment(HomeActivity.SEE_LOG);
-                }
-            });
-            dialogBuilder.setNegativeButton("Cancel",new DialogInterface.OnClickListener()
-
-            {
-                public void onClick (DialogInterface dialog,int whichButton){
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
                 dialog.dismiss();
             }
-            });
-            AlertDialog b = dialogBuilder.create();
+        });
+        dialogBuilder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                mDb.execSQL("delete from " + TransferTable.TABLE_NAME +
+                        " where _id = ? ;", new String[]{transferCursor.getString(0)});
+
+                Calendar calendar = Calendar.getInstance();
+                String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
+                        String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+
+                //Update Log
+                mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
+                                LogTable.COLUMN_TITLE + "," +
+                                LogTable.COLUMN_DESCRIPTION_MAIN + "," +
+                                LogTable.COLUMN_DESCRIPTION_SUB + "," +
+                                LogTable.COLUMN_AMOUNT + "," +
+                                LogTable.COLUMN_HIDDEN_ID + "," +
+                                LogTable.COLUMN_LOG_DATE + "," +
+                                LogTable.COLUMN_EVENT_DATE + "," +
+                                LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
+                        new String[]{transferCursor.getString(4) + " -> " + transferCursor.getString(5), transferCursor.getString(3),
+                                "Transfer Deleted", transferCursor.getString(2), transferCursor.getString(0), currentDate,
+                                transferCursor.getString(1), TransferTable.TABLE_NAME});
+                mDb.close();
+                dialog.dismiss();
+            }
+        });
+        AlertDialog b = dialogBuilder.create();
         b.show();
-        }
+    }
 
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
