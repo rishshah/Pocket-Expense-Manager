@@ -17,7 +17,7 @@ public class ExpenseAmountTable implements BaseColumns {
             COLUMN_EXPENSE_ID + " INTEGER," +
             COLUMN_AMOUNT + " FLOAT," +
             COLUMN_MOP + " VARCHAR(20)," +
-            "FOREIGN KEY("+ COLUMN_EXPENSE_ID +") REFERENCES " + ExpenseTable.TABLE_NAME + "(_id) ON UPDATE CASCADE ON DELETE CASCADE," +
+            "FOREIGN KEY("+ COLUMN_EXPENSE_ID +") REFERENCES " + ExpenseTable.TABLE_NAME + "(_id) ON DELETE CASCADE," +
             "FOREIGN KEY("+ COLUMN_MOP +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ") ON UPDATE CASCADE ON DELETE CASCADE" +
             ");";
 

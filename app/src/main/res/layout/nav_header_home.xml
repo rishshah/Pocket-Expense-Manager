@@ -16,33 +16,33 @@
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/username"
         android:contentDescription="@string/profile_pic"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        app:srcCompat="@drawable/ic_nav_window"
-        android:layout_alignTop="@+id/username"
-        android:layout_alignParentStart="true" />
+        app:srcCompat="@drawable/ic_nav_window" />
 
     <TextView
+        android:id="@+id/username"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/imageView"
         android:fontFamily="cursive"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:text="@string/app_name"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="25sp"
-        android:id="@+id/username"
-        android:layout_centerVertical="true"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/imageView" />
+        android:textSize="25sp" />
 
 
     <TextView
         android:id="@+id/email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/rishrock17_gmail_com"
-        android:textSize="18sp"
         android:layout_below="@+id/imageView"
-        android:layout_toEndOf="@+id/imageView" />
+        android:layout_toEndOf="@+id/imageView"
+        android:text="@string/rishrock17_gmail_com"
+        android:textSize="18sp" />
 
 </RelativeLayout>

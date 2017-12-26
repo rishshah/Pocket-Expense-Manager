@@ -3,19 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorDark"
+    android:background="@color/colorPrimary"
     android:orientation="horizontal"
     android:padding="10dp"
     android:weightSum="10">
 
     <ImageView
         android:layout_width="0dp"
-        android:contentDescription="@string/rupee_symbol"
         android:layout_height="match_parent"
-        android:src="@drawable/ic_rupee"
+        android:layout_weight="0.5"
+        android:contentDescription="@string/rupee_symbol"
         android:scaleX="1.6"
         android:scaleY="1.6"
-        android:layout_weight="0.5"/>
+        android:src="@drawable/ic_rupee" />
 
     <TextView
         android:id="@+id/amount"
@@ -23,28 +23,29 @@
         android:layout_height="match_parent"
         android:layout_weight="2"
         android:fontFamily="cursive"
-        android:text="@string/dummy_amt"
         android:gravity="center_vertical"
+        android:text="@string/dummy_amt"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/white"
         android:textSize="25sp"
         tools:textStyle="bold" />
 
     <TextView
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="0.2"/>
+        android:layout_weight="0.2" />
 
     <TextView
         android:id="@+id/hidden_id"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"/>
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/hidden_type"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <RelativeLayout
         android:layout_width="0dp"
@@ -61,22 +62,22 @@
             <TextView
                 android:id="@+id/title"
                 android:layout_width="0dp"
-                android:layout_weight="2.2"
                 android:layout_height="match_parent"
+                android:layout_weight="2.2"
                 android:gravity="start"
                 android:text="@string/dummy_title"
-                android:textColor="@color/colorLight"
+                android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold|italic" />
 
             <TextView
                 android:id="@+id/event_date"
                 android:layout_width="0dp"
-                android:layout_weight="1.8"
                 android:layout_height="match_parent"
+                android:layout_weight="1.8"
                 android:gravity="end|fill_vertical"
                 android:text="@string/dummy_date"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/white"
                 android:textSize="15sp" />
 
         </LinearLayout>
@@ -88,14 +89,14 @@
             android:layout_below="@+id/header"
             android:gravity="start"
             android:text="@string/dummy_description_main"
-            android:textColor="@color/colorLight"
+            android:textColor="@color/white"
             android:textSize="18sp" />
 
         <LinearLayout
             android:id="@+id/footer"
             android:layout_width="match_parent"
-            android:layout_below="@id/description_main"
             android:layout_height="wrap_content"
+            android:layout_below="@id/description_main"
             android:layout_marginTop="10dp"
             android:orientation="horizontal"
             android:weightSum="4">
@@ -103,28 +104,26 @@
             <TextView
                 android:id="@+id/description_sub"
                 android:layout_width="0dp"
-                android:layout_weight="2.2"
                 android:layout_height="match_parent"
+                android:layout_weight="2.2"
+                android:fontFamily="monospace"
                 android:gravity="start"
                 android:text="@string/dummy_description_sub"
-                android:textColor="@color/colorLight"
-                android:textSize="12sp"
-                android:fontFamily="monospace"
-                />
+                android:textColor="@color/black"
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/log_date"
                 android:layout_width="0dp"
-                android:layout_weight="1.8"
                 android:layout_height="match_parent"
+                android:layout_weight="1.8"
+                android:fontFamily="monospace"
                 android:gravity="end|fill_vertical"
                 android:text="@string/dummy_date"
-                android:textColor="@color/colorLight"
-                android:fontFamily="monospace"
+                android:textColor="@color/black"
                 android:textSize="12sp" />
 
         </LinearLayout>
-
 
     </RelativeLayout>
 

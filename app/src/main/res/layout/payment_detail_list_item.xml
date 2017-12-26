@@ -2,26 +2,28 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    android:orientation="horizontal"
     android:paddingLeft="20dp"
     android:paddingRight="20dp"
-    android:orientation="horizontal"
     android:weightSum="3">
+
     <TextView
         android:id="@+id/mop_caption"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="2"
         android:gravity="start|center"
-        android:textSize="18sp"/>
+        android:text="@string/dummy_mop"
+        android:textSize="18sp" />
 
     <EditText
         android:id="@+id/mop_amount"
         android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:gravity="start"
-        android:textSize="18sp"
-        android:hint="@string/amount"
         android:digits="0123456789."
-        android:layout_height="match_parent"/>
+        android:gravity="start"
+        android:hint="@string/amount"
+        android:textSize="18sp" />
 
 </LinearLayout>

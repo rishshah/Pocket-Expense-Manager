@@ -12,6 +12,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:hint="@string/new_category"
+        android:textColor="@color/black"
+        android:textColorHint="@color/grey"
         android:inputType="text"/>
 
 </RelativeLayout>

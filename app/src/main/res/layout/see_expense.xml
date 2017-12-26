@@ -8,7 +8,7 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorDark"
+        android:background="@color/colorPrimary"
         android:orientation="horizontal"
         android:padding="10dp"
         android:weightSum="10">
@@ -28,10 +28,9 @@
             android:layout_height="match_parent"
             android:layout_weight="3.5"
             android:fontFamily="cursive"
-            android:text="@string/dummy_amt"
             android:gravity="center_vertical"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textColor="@color/colorAccent"
+            android:text="@string/dummy_amt"
+            android:textColor="@color/white"
             android:textSize="40sp"
             tools:textStyle="bold" />
 
@@ -45,22 +44,22 @@
 
             <TextView
                 android:id="@+id/category"
-                android:text="@string/dummy_title"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="start"
-                android:textColor="@color/colorLight"
+                android:text="@string/dummy_title"
+                android:textColor="@color/white"
                 android:textSize="30sp"
                 android:textStyle="bold|italic" />
 
             <TextView
                 android:id="@+id/date"
                 android:layout_width="match_parent"
-                android:text="@string/dummy_date"
                 android:layout_height="match_parent"
                 android:gravity="start|fill_vertical"
                 android:inputType="none"
-                android:textColor="@color/colorAccent"
+                android:text="@string/dummy_date"
+                android:textColor="@color/white"
                 android:textSize="20sp" />
 
         </LinearLayout>
@@ -81,27 +80,26 @@
         android:layout_alignParentEnd="true"
         android:layout_gravity="end"
         android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginTop="50dp"
-        android:tint="@color/colorLight"
-        app:backgroundTint="@color/colorPrimary"
-        app:elevation="24dp"
-        app:fabSize="normal"
+        android:layout_marginTop="60dp"
+        android:tint="@color/white"
+        app:backgroundTint="@color/colorSecondaryDark"
+        app:elevation="10dp"
+        app:fabSize="mini"
         app:srcCompat="@android:drawable/ic_menu_edit" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_delete_expense"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentEnd="true"
-        android:layout_gravity="end"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginTop="0dp"
-        android:tint="@color/colorLight"
-        app:backgroundTint="#ff0000"
-        app:elevation="24dp"
-        app:fabSize="mini"
-        app:srcCompat="@android:drawable/ic_delete" />
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="30dp"
+        android:layout_marginStart="20dp"
+        android:tint="@color/white"
+        app:backgroundTint="@color/colorSecondaryDark"
+        app:elevation="10dp"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_delete" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_save_expxense"
@@ -114,12 +112,11 @@
         android:layout_marginEnd="20dp"
         android:layout_marginLeft="@dimen/fab_margin"
         android:layout_marginRight="@dimen/fab_margin"
-        android:tint="@color/colorLight"
-        app:backgroundTint="@color/colorPrimary"
-        app:elevation="24dp"
+        android:tint="@color/white"
+        app:backgroundTint="@color/colorSecondaryDark"
+        app:elevation="10dp"
         app:fabSize="normal"
-        app:srcCompat="@android:drawable/stat_sys_upload_done" />
-
+        app:srcCompat="@drawable/ic_done" />
 
 
 </RelativeLayout>

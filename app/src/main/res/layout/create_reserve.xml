@@ -12,15 +12,19 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:hint="@string/new_reserve"
-        android:inputType="text" />
+        android:inputType="text"
+        android:textColor="@color/black"
+        android:textColorHint="@color/grey" />
 
     <EditText
         android:id="@+id/reserve_amount"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_below="@id/reserve_text"
+        android:layout_marginTop="10dp"
         android:hint="@string/start_amount"
+        android:textColorHint="@color/grey"
+        android:textColor="@color/black"
         android:inputType="numberDecimal" />
 
 </RelativeLayout>

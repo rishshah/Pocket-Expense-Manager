@@ -17,7 +17,7 @@
         android:fontFamily="serif"
         android:text="@string/app_name"
         android:textAlignment="center"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="60sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.509"
@@ -26,14 +26,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.096" />
 
-    <Button
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/continue_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:padding="20dp"
-        android:text="@string/continue_button" />
+        android:layout_centerInParent="true"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="20dp"
+        android:tint="@color/white"
+        app:backgroundTint="@color/colorSecondaryDark"
+        app:elevation="10dp"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_next" />
 
     <EditText
         android:id="@+id/email_text"
@@ -43,8 +48,8 @@
         android:layout_marginBottom="20dp"
         android:hint="@string/email_id"
         android:inputType="textPersonName"
-        android:textColor="@color/colorLight"
-        android:textColorHint="@color/colorLight" />
+        android:textColor="@color/black"
+        android:textColorHint="@color/grey" />
 
     <EditText
         android:id="@+id/username_text"
@@ -54,6 +59,6 @@
         android:layout_marginBottom="10dp"
         android:hint="@string/username"
         android:inputType="textPersonName"
-        android:textColor="@color/colorLight"
-        android:textColorHint="@color/colorLight" />
+        android:textColor="@color/black"
+        android:textColorHint="@color/grey" />
 </RelativeLayout>

@@ -31,6 +31,5 @@
 - Over the budget features
 
 ## Bugs
-- Expense, transfer delete feature.  
-- Start amount reserve list item
+- Reserve, Category delete feature.  
 - Not allowing expense, transfers that make the balance negative

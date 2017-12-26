@@ -230,8 +230,9 @@ public class SeeExpense extends Fragment {
             float amt = 0f;
             while (reserveCursor.moveToNext()) {
                 amt += reserveCursor.getFloat(2);
-            }
 
+            }
+            mDb.execSQL("delete from " + ExpenseAmountTable.TABLE_NAME + " where " + ExpenseAmountTable.COLUMN_EXPENSE_ID + " = ?", new String[]{getArguments().getString("_id")});
             mDb.execSQL("delete from " + ExpenseTable.TABLE_NAME + " where _id = ?", new String[]{getArguments().getString("_id")});
 
             Calendar calendar = Calendar.getInstance();
