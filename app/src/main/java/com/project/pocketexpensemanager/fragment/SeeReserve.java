@@ -78,7 +78,12 @@ public class SeeReserve extends Fragment {
         final View dialogView = inflater.inflate(R.layout.create_reserve, null);
         dialogBuilder.setView(dialogView);
         ((EditText) dialogView.findViewById(R.id.reserve_text)).setText(current_reserve);
-//        ((EditText) dialogView.findViewById(R.id.reserve_amount)).setText(current_start_amt);
+
+        SQLiteDatabase mDb = dbHelper.getReadableDatabase();
+        reserveCursor = mDb.rawQuery("select _id, " + ReserveTable.COLUMN_START_AMT + " from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ", new String[]{current_reserve});
+        if(reserveCursor.moveToFirst()){
+            ((EditText) dialogView.findViewById(R.id.reserve_amount)).setText(String.valueOf(reserveCursor.getFloat(1)));
+        }
         dialogBuilder.setTitle("Edit Reserve");
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
