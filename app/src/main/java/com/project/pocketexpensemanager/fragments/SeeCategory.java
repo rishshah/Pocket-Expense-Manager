@@ -1,4 +1,4 @@
-package com.project.pocketexpensemanager.fragment;
+package com.project.pocketexpensemanager.fragments;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -20,11 +20,11 @@ import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
-import com.project.pocketexpensemanager.constant.Constants;
+import com.project.pocketexpensemanager.utilities.Constants;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
-import com.project.pocketexpensemanager.database.table.CategoryTable;
-import com.project.pocketexpensemanager.database.table.ExpenseTable;
-import com.project.pocketexpensemanager.fragment.communication.Display;
+import com.project.pocketexpensemanager.database.tables.CategoryTable;
+import com.project.pocketexpensemanager.database.tables.ExpenseTable;
+import com.project.pocketexpensemanager.fragments.communication.Display;
 
 public class SeeCategory extends Fragment {
 

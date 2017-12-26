@@ -1,22 +1,26 @@
-package com.project.pocketexpensemanager.database.table;
+package com.project.pocketexpensemanager.database.tables;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-public class CategoryTable implements BaseColumns{
-    //Table name
-    public static final String TABLE_NAME = "category";
-    public static final String COLUMN_TYPE = "type";
-    public static final String COLUMN_ACTIVE = "active";
+public class ExpenseAmountTable implements BaseColumns {
 
+    public static final String TABLE_NAME = "expense_amount";
+    public static final String COLUMN_EXPENSE_ID = "expense_id";
+    public static final String COLUMN_MOP  = "method_of_payment";
+    public static final String COLUMN_AMOUNT  = "amount";
 
     // Database creation SQL statement
     private static final String TABLE_CREATE = "create table " + TABLE_NAME + " (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            COLUMN_TYPE + " VARCHAR(20), " +
-            COLUMN_ACTIVE + " INTEGER" +
+            COLUMN_EXPENSE_ID + " INTEGER," +
+            COLUMN_AMOUNT + " FLOAT," +
+            COLUMN_MOP + " VARCHAR(20)," +
+            "FOREIGN KEY("+ COLUMN_EXPENSE_ID +") REFERENCES " + ExpenseTable.TABLE_NAME + "(_id) ON DELETE CASCADE," +
+            "FOREIGN KEY("+ COLUMN_MOP +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ") ON UPDATE CASCADE ON DELETE CASCADE" +
             ");";
+
 
     public static void onCreate(SQLiteDatabase database) {
         database.execSQL(TABLE_CREATE);
@@ -31,4 +35,5 @@ public class CategoryTable implements BaseColumns{
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME );
         onCreate(database);
     }
+
 }

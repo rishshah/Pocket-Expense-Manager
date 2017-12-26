@@ -1,4 +1,4 @@
-package com.project.pocketexpensemanager.database.table;
+package com.project.pocketexpensemanager.database.tables;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
@@ -13,7 +13,6 @@ public class LogTable implements BaseColumns{
     public static final String COLUMN_AMOUNT = "amount";
     public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_TYPE = "type";
-    public static final String COLUMN_STATUS = "status";
     public static final String COLUMN_HIDDEN_ID = "hidden";
     public static final String COLUMN_EVENT_DATE = "event_date";
 
@@ -27,8 +26,7 @@ public class LogTable implements BaseColumns{
             COLUMN_DESCRIPTION_SUB + " TEXT, " +
             COLUMN_AMOUNT + " FLOAT, " +
             COLUMN_TITLE + " TEXT, " +
-            COLUMN_HIDDEN_ID + " INTEGER, " +
-            COLUMN_STATUS + " INTEGER " +
+            COLUMN_HIDDEN_ID + " INTEGER" +
             ");";
 
 

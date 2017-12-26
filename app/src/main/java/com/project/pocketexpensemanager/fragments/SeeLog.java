@@ -1,4 +1,4 @@
-package com.project.pocketexpensemanager.fragment;
+package com.project.pocketexpensemanager.fragments;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -30,13 +30,14 @@ import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
-import com.project.pocketexpensemanager.constant.Constants;
+import com.project.pocketexpensemanager.utilities.Constants;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
-import com.project.pocketexpensemanager.database.table.ExpenseTable;
-import com.project.pocketexpensemanager.database.table.LogTable;
-import com.project.pocketexpensemanager.database.table.ReserveTable;
-import com.project.pocketexpensemanager.database.table.TransferTable;
-import com.project.pocketexpensemanager.fragment.communication.Display;
+import com.project.pocketexpensemanager.database.tables.ExpenseTable;
+import com.project.pocketexpensemanager.database.tables.LogTable;
+import com.project.pocketexpensemanager.database.tables.ReserveTable;
+import com.project.pocketexpensemanager.database.tables.TransferTable;
+import com.project.pocketexpensemanager.fragments.communication.Display;
+import com.project.pocketexpensemanager.utilities.LogItemAdapter;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -74,11 +75,11 @@ public class SeeLog extends Fragment {
                 LogTable.COLUMN_HIDDEN_ID};
 
         logCursor = mDb.rawQuery("select * from " + LogTable.TABLE_NAME + " order by _id desc;", null);
-        SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.log_item,
+        LogItemAdapter adapter = new LogItemAdapter(getActivity(), R.layout.log_item,
                 logCursor, adapterColViews, adapterRowViews, 0);
-        adapter.setDropDownViewResource(R.layout.log_item);
         ListView logList = (ListView) view.findViewById(R.id.list);
         logList.setAdapter(adapter);
+
         mDb.close();
 
         logList.setOnItemClickListener(new AdapterView.OnItemClickListener() {

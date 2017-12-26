@@ -1,25 +1,29 @@
-package com.project.pocketexpensemanager.database.table;
+package com.project.pocketexpensemanager.database.tables;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-public class ExpenseTable implements BaseColumns{
+public class TransferTable implements BaseColumns{
 
-    public static final String TABLE_NAME = "expense";
+    public static final String TABLE_NAME = "transfer";
     public static final String COLUMN_DATE = "date";
-    public static final String COLUMN_CATEGORY = "category";
-    public static final String COLUMN_DESCRIPTION  = "description";
+    public static final String COLUMN_DESCRIPTION = "description";
+    public static final String COLUMN_AMOUNT = "amount";
+    public static final String COLUMN_FROM_MODE  = "from_mode";
+    public static final String COLUMN_TO_MODE  = "to_mode";
 
     // Database creation SQL statement
     private static final String TABLE_CREATE = "create table " + TABLE_NAME + " (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             COLUMN_DATE + " DATETIME, " +
-            COLUMN_CATEGORY + " VARCHAR(20), " +
-            COLUMN_DESCRIPTION + " TEXT, " +
-            "FOREIGN KEY("+ COLUMN_CATEGORY +") REFERENCES " + CategoryTable.TABLE_NAME + "(" + CategoryTable.COLUMN_TYPE + ") ON UPDATE CASCADE ON DELETE CASCADE" +
+            COLUMN_AMOUNT + " FLOAT," +
+            COLUMN_DESCRIPTION + " TEXT," +
+            COLUMN_FROM_MODE + " VARCHAR(20)," +
+            COLUMN_TO_MODE + " VARCHAR(20)," +
+            "FOREIGN KEY("+ COLUMN_FROM_MODE +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ") ON UPDATE CASCADE ON DELETE CASCADE," +
+            "FOREIGN KEY("+ COLUMN_TO_MODE +") REFERENCES " + ReserveTable.TABLE_NAME + "(" + ReserveTable.COLUMN_TYPE + ") ON UPDATE CASCADE ON DELETE CASCADE" +
             ");";
-
 
     public static void onCreate(SQLiteDatabase database) {
         database.execSQL(TABLE_CREATE);

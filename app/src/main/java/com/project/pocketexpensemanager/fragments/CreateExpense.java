@@ -1,4 +1,4 @@
-package com.project.pocketexpensemanager.fragment;
+package com.project.pocketexpensemanager.fragments;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -26,14 +26,14 @@ import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
-import com.project.pocketexpensemanager.constant.Constants;
+import com.project.pocketexpensemanager.utilities.Constants;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
-import com.project.pocketexpensemanager.database.table.CategoryTable;
-import com.project.pocketexpensemanager.database.table.ExpenseAmountTable;
-import com.project.pocketexpensemanager.database.table.ExpenseTable;
-import com.project.pocketexpensemanager.database.table.LogTable;
-import com.project.pocketexpensemanager.database.table.ReserveTable;
-import com.project.pocketexpensemanager.fragment.communication.Display;
+import com.project.pocketexpensemanager.database.tables.CategoryTable;
+import com.project.pocketexpensemanager.database.tables.ExpenseAmountTable;
+import com.project.pocketexpensemanager.database.tables.ExpenseTable;
+import com.project.pocketexpensemanager.database.tables.LogTable;
+import com.project.pocketexpensemanager.database.tables.ReserveTable;
+import com.project.pocketexpensemanager.fragments.communication.Display;
 
 import java.util.Calendar;
 
@@ -159,10 +159,9 @@ public class CreateExpense extends Fragment {
                             LogTable.COLUMN_HIDDEN_ID + "," +
                             LogTable.COLUMN_LOG_DATE + "," +
                             LogTable.COLUMN_EVENT_DATE + "," +
-                            LogTable.COLUMN_TYPE + "," +
-                            LogTable.COLUMN_STATUS + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                            LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
                     new String[]{category, description, "Expense Created", String.valueOf(amt), id, currentDate, date,
-                            ExpenseTable.TABLE_NAME, String.valueOf(Constants.CREATED)});
+                            ExpenseTable.TABLE_NAME});
         }
 
         mDb.close();

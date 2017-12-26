@@ -4,120 +4,127 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorPrimary"
-    android:orientation="horizontal"
-    android:padding="10dp"
-    android:weightSum="10">
+    android:orientation="vertical">
+
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="3"
-        android:orientation="vertical"
-        android:weightSum="3">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2.5"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:contentDescription="@string/rupee_symbol"
-                android:src="@drawable/ic_rupee" />
-
-            <TextView
-                android:id="@+id/amount"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:fontFamily="cursive"
-                android:gravity="center_vertical"
-                android:text="@string/dummy_amt"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textColor="@color/white"
-                android:textSize="25sp"
-                tools:textStyle="bold" />
-
-        </LinearLayout>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingStart="1dp"
+        android:paddingEnd="5dp"
+        android:paddingTop="5dp"
+        android:weightSum="10">
 
         <ImageView
-            android:id="@+id/status"
-            android:contentDescription="@string/status"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:id="@+id/rupee_symbol"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="0.5"
-            android:src="@drawable/ic_delete"/>
+            android:contentDescription="@string/rupee_symbol"
+            android:scaleX="1.6"
+            android:scaleY="1.6"
+            android:src="@drawable/ic_rupee" />
+
+        <TextView
+            android:id="@+id/amount"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:ellipsize="none"
+            android:gravity="fill_vertical"
+            android:fontFamily="cursive"
+            android:maxLines="100"
+            android:scrollHorizontally="false"
+            android:text="@string/dummy_amt"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            tools:textStyle="bold" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2" />
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="7.3">
+
+            <LinearLayout
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="4">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.2"
+                    android:gravity="start"
+                    android:text="@string/dummy_title"
+                    android:textColor="@color/white"
+                    android:textSize="19sp"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:id="@+id/event_date"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.8"
+                    android:gravity="end|fill_vertical"
+                    android:text="@string/dummy_date"
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/description_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/header"
+                android:gravity="start"
+                android:text="@string/dummy_description_main"
+                android:textColor="@color/white"
+                android:textSize="17sp" />
+
+        </RelativeLayout>
+
 
     </LinearLayout>
 
-    <TextView
-        android:layout_width="0dp"
-        android:layout_weight="0.2"
-        android:layout_height="match_parent" />
-
-    <TextView
-        android:id="@+id/hidden_id"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingEnd="5dp"
+        android:paddingBottom="5dp"
+        android:paddingStart="1dp"
+        android:weightSum="10">
 
-    <TextView
-        android:id="@+id/hidden_type"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
-
-    <RelativeLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="7.3">
-
-        <LinearLayout
-            android:id="@+id/header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="4">
-
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2.2"
-                android:gravity="start"
-                android:text="@string/dummy_title"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold|italic" />
-
-            <TextView
-                android:id="@+id/event_date"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1.8"
-                android:gravity="end|fill_vertical"
-                android:text="@string/dummy_date"
-                android:textColor="@color/white"
-                android:textSize="15sp" />
-
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/status"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2.5"
+            android:contentDescription="@string/status"
+            android:src="@android:drawable/ic_delete"/>
 
         <TextView
-            android:id="@+id/description_main"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/header"
-            android:gravity="start"
-            android:text="@string/dummy_description_main"
-            android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2" />
 
         <LinearLayout
             android:id="@+id/footer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/description_main"
+            android:layout_width="0dp"
+            android:layout_weight="7.3"
+            android:layout_height="match_parent"
             android:layout_marginTop="10dp"
             android:orientation="horizontal"
             android:weightSum="4">
@@ -131,7 +138,7 @@
                 android:gravity="start"
                 android:text="@string/dummy_description_sub"
                 android:textColor="@color/black"
-                android:textSize="12sp" />
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/log_date"
@@ -139,14 +146,28 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1.8"
                 android:fontFamily="monospace"
-                android:gravity="end|fill_vertical"
+                android:gravity="end"
                 android:text="@string/dummy_date"
                 android:textColor="@color/black"
-                android:textSize="12sp" />
+                android:textSize="14sp" />
 
         </LinearLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/hidden_id"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/hidden_type"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
 
 </LinearLayout>
 

@@ -11,7 +11,7 @@
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:stackFromBottom="true" />
+        android:stackFromBottom="false" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

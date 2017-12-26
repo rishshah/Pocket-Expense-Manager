@@ -1,4 +1,4 @@
-package com.project.pocketexpensemanager.fragment.communication;
+package com.project.pocketexpensemanager.fragments.communication;
 
 import android.database.Cursor;
 

@@ -3,14 +3,13 @@ package com.project.pocketexpensemanager.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
-import com.project.pocketexpensemanager.database.table.CategoryTable;
-import com.project.pocketexpensemanager.database.table.ExpenseAmountTable;
-import com.project.pocketexpensemanager.database.table.ExpenseTable;
-import com.project.pocketexpensemanager.database.table.LogTable;
-import com.project.pocketexpensemanager.database.table.ReserveTable;
-import com.project.pocketexpensemanager.database.table.TransferTable;
+import com.project.pocketexpensemanager.database.tables.CategoryTable;
+import com.project.pocketexpensemanager.database.tables.ExpenseAmountTable;
+import com.project.pocketexpensemanager.database.tables.ExpenseTable;
+import com.project.pocketexpensemanager.database.tables.LogTable;
+import com.project.pocketexpensemanager.database.tables.ReserveTable;
+import com.project.pocketexpensemanager.database.tables.TransferTable;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
