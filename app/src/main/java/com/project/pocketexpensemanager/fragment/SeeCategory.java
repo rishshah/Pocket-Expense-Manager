@@ -20,15 +20,17 @@ import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
+import com.project.pocketexpensemanager.constant.Constants;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
 import com.project.pocketexpensemanager.database.table.CategoryTable;
+import com.project.pocketexpensemanager.database.table.ExpenseTable;
 import com.project.pocketexpensemanager.fragment.communication.Display;
 
 public class SeeCategory extends Fragment {
 
     private Display mDisplay;
     private DatabaseHelper dbHelper;
-    private Cursor categoryCursor;
+    private Cursor categoryCursor, expenseCursor;
 
     @Nullable
     @Override
@@ -37,7 +39,7 @@ public class SeeCategory extends Fragment {
         int[] adapterRowViews = new int[]{android.R.id.text1};
 
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
-        categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + ";", null);
+        categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + "where " + CategoryTable.COLUMN_ACTIVE + " = ?;", new String[]{String.valueOf(Constants.ACTIVATED)});
         SimpleCursorAdapter categorySca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1,
                 categoryCursor, new String[]{CategoryTable.COLUMN_TYPE}, adapterRowViews, 0);
         categorySca.setDropDownViewResource(android.R.layout.simple_list_item_1);
@@ -59,7 +61,7 @@ public class SeeCategory extends Fragment {
             }
         });
 
-        if(getActivity().getCurrentFocus()!=null) {
+        if (getActivity().getCurrentFocus() != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
         }
@@ -96,8 +98,14 @@ public class SeeCategory extends Fragment {
         dialogBuilder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 SQLiteDatabase mDb = dbHelper.getWritableDatabase();
-                mDb.execSQL("delete from " + CategoryTable.TABLE_NAME  +
+                expenseCursor = mDb.rawQuery("select * from " + ExpenseTable.TABLE_NAME + " where " + ExpenseTable.COLUMN_CATEGORY + " = ? ", new String[]{current_category});
+                if (expenseCursor.getCount() > 0) {
+                    mDb.execSQL("update " + CategoryTable.TABLE_NAME + " set " + CategoryTable.COLUMN_ACTIVE + " = ? " +
+                            " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{String.valueOf(Constants.DEACTIVATED), current_category});
+                } else {
+                    mDb.execSQL("delete from " + CategoryTable.TABLE_NAME +
                             " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{current_category});
+                }
                 mDb.close();
                 mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
             }
@@ -120,8 +128,9 @@ public class SeeCategory extends Fragment {
                 categoryCursor = mDb.rawQuery("select * from " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category});
                 if (categoryCursor != null && categoryCursor.getCount() == 0)
                     mDb.execSQL("insert into " + CategoryTable.TABLE_NAME + " (" +
-                            CategoryTable.COLUMN_TYPE +
-                            ") " + " values (?);", new String[]{category});
+                            CategoryTable.COLUMN_TYPE + ", " +
+                            CategoryTable.COLUMN_ACTIVE +
+                            ") " + " values (?,?);", new String[]{category, String.valueOf(Constants.ACTIVATED)});
                 mDb.close();
                 mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
             }
@@ -150,6 +159,9 @@ public class SeeCategory extends Fragment {
     public void onDetach() {
         if (categoryCursor != null && !categoryCursor.isClosed())
             categoryCursor.close();
+        if (expenseCursor != null && !expenseCursor.isClosed())
+            expenseCursor.close();
+
         super.onDetach();
     }
 }

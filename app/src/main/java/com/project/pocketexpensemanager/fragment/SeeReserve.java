@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
+import com.project.pocketexpensemanager.constant.Constants;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
 import com.project.pocketexpensemanager.database.table.ExpenseAmountTable;
 import com.project.pocketexpensemanager.database.table.ReserveTable;
@@ -31,7 +32,7 @@ public class SeeReserve extends Fragment {
 
     private Display mDisplay;
     private DatabaseHelper dbHelper;
-    private Cursor reserveCursor;
+    private Cursor reserveCursor, expenseCursor, transferCursor;
 
     @Nullable
     @Override
@@ -43,8 +44,8 @@ public class SeeReserve extends Fragment {
         reserveCursor = mDb.rawQuery("with a(" + ReserveTable.COLUMN_TYPE + ",amt1) as (select " + ExpenseAmountTable.COLUMN_MOP + ", sum(" + ExpenseAmountTable.COLUMN_AMOUNT + ") from " + ExpenseAmountTable.TABLE_NAME + " group by " + ExpenseAmountTable.COLUMN_MOP + "), " +
                 "b(" + ReserveTable.COLUMN_TYPE + ",amt2) as (select " + TransferTable.COLUMN_FROM_MODE + ", sum(" + TransferTable.COLUMN_AMOUNT + ")  from " + TransferTable.TABLE_NAME + " group by " + TransferTable.COLUMN_FROM_MODE + ")," +
                 "c(" + ReserveTable.COLUMN_TYPE + ",amt3) as (select " + TransferTable.COLUMN_TO_MODE + ", sum(" + TransferTable.COLUMN_AMOUNT + ")  from " + TransferTable.TABLE_NAME + " group by " + TransferTable.COLUMN_TO_MODE + ")," +
-                "final_one(_id, " + ReserveTable.COLUMN_TYPE + ", " + ReserveTable.COLUMN_START_AMT + ", amt1, amt2, amt3) as (select _id, " + ReserveTable.COLUMN_TYPE + ",  CASE WHEN " + ReserveTable.COLUMN_START_AMT + " IS NULL THEN 0 ELSE " + ReserveTable.COLUMN_START_AMT + " END, CASE WHEN amt1 IS NULL THEN 0 ELSE amt1 END, CASE WHEN amt2 IS NULL THEN 0 ELSE amt2 END, CASE WHEN amt3 IS NULL THEN 0 ELSE amt3 END from (((reserve left natural outer join a) left natural outer join b) left natural outer join c))" +
-                "select _id, " + ReserveTable.COLUMN_TYPE + ",  (" + ReserveTable.COLUMN_START_AMT + " + amt3 - amt2 - amt1) as balance from final_one;", null);
+                "final_one(_id, " + ReserveTable.COLUMN_TYPE + ", " + ReserveTable.COLUMN_START_AMT + "," + ReserveTable.COLUMN_ACTIVE + " amt1, amt2, amt3) as (select _id, " + ReserveTable.COLUMN_TYPE + ",  CASE WHEN " + ReserveTable.COLUMN_START_AMT + " IS NULL THEN 0 ELSE " + ReserveTable.COLUMN_START_AMT + " END, CASE WHEN amt1 IS NULL THEN 0 ELSE amt1 END, CASE WHEN amt2 IS NULL THEN 0 ELSE amt2 END, CASE WHEN amt3 IS NULL THEN 0 ELSE amt3 END from (((reserve left natural outer join a) left natural outer join b) left natural outer join c))" +
+                "select _id, " + ReserveTable.COLUMN_TYPE + ",  (" + ReserveTable.COLUMN_START_AMT + " + amt3 - amt2 - amt1) as balance from final_one where " + ReserveTable.COLUMN_ACTIVE + " = ?;", new String[]{String.valueOf(Constants.ACTIVATED)});
         SimpleCursorAdapter reserveSca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_2,
                 reserveCursor, new String[]{ReserveTable.COLUMN_TYPE, "balance"}, adapterRowViews, 0);
         reserveSca.setDropDownViewResource(android.R.layout.simple_list_item_2);
@@ -65,7 +66,7 @@ public class SeeReserve extends Fragment {
             }
         });
 
-        if(getActivity().getCurrentFocus()!=null) {
+        if (getActivity().getCurrentFocus() != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
         }
@@ -81,7 +82,7 @@ public class SeeReserve extends Fragment {
 
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
         reserveCursor = mDb.rawQuery("select _id, " + ReserveTable.COLUMN_START_AMT + " from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ", new String[]{current_reserve});
-        if(reserveCursor.moveToFirst()){
+        if (reserveCursor.moveToFirst()) {
             ((EditText) dialogView.findViewById(R.id.reserve_amount)).setText(String.valueOf(reserveCursor.getFloat(1)));
         }
         dialogBuilder.setTitle("Edit Reserve");
@@ -106,6 +107,22 @@ public class SeeReserve extends Fragment {
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+            }
+        });
+        dialogBuilder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                expenseCursor = mDb.rawQuery("select * from " + ExpenseAmountTable.TABLE_NAME + " where " + ExpenseAmountTable.COLUMN_MOP + " = ? ", new String[]{current_reserve});
+                transferCursor = mDb.rawQuery("select * from " + TransferTable.TABLE_NAME + " where " + TransferTable.COLUMN_FROM_MODE + " = ?  or " + TransferTable.COLUMN_TO_MODE + " = ?", new String[]{current_reserve, current_reserve});
+                if (expenseCursor.getCount() > 0 || transferCursor.getCount() > 0) {
+                    mDb.execSQL("update " + ReserveTable.TABLE_NAME + " set " + ReserveTable.COLUMN_ACTIVE + " = ? " +
+                            " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{String.valueOf(Constants.DEACTIVATED), current_reserve});
+                } else {
+                    mDb.execSQL("delete from " + ReserveTable.TABLE_NAME +
+                            " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{current_reserve});
+                }
+                mDb.close();
+                mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
             }
         });
         AlertDialog b = dialogBuilder.create();
@@ -158,6 +175,11 @@ public class SeeReserve extends Fragment {
     public void onDetach() {
         if (reserveCursor != null && !reserveCursor.isClosed())
             reserveCursor.close();
+        if (expenseCursor != null && !expenseCursor.isClosed())
+            expenseCursor.close();
+        if (transferCursor != null && !transferCursor.isClosed())
+            transferCursor.close();
+
         super.onDetach();
     }
 }

@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
+import com.project.pocketexpensemanager.constant.Constants;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
 import com.project.pocketexpensemanager.database.table.CategoryTable;
 import com.project.pocketexpensemanager.database.table.ExpenseAmountTable;
@@ -57,7 +58,7 @@ public class CreateExpense extends Fragment {
         descriptionText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent keyEvent) {
-                if(keyCode == 66 && keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER){
+                if (keyCode == 66 && keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 }
                 return false;
@@ -66,7 +67,7 @@ public class CreateExpense extends Fragment {
 
         // Category picker
         int[] adapterRowViews = new int[]{android.R.id.text1};
-        categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + ";", null);
+        categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_ACTIVE + " = ? ;", new String[]{String.valueOf(Constants.ACTIVATED)});
         SimpleCursorAdapter categorySca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_spinner_item,
                 categoryCursor, new String[]{CategoryTable.COLUMN_TYPE}, adapterRowViews, 0);
         categorySca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -74,7 +75,7 @@ public class CreateExpense extends Fragment {
 
         mDb.close();
         // Date Picker
-        ((EditText)dateText).setInputType(InputType.TYPE_NULL);
+        ((EditText) dateText).setInputType(InputType.TYPE_NULL);
         dateText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -158,8 +159,10 @@ public class CreateExpense extends Fragment {
                             LogTable.COLUMN_HIDDEN_ID + "," +
                             LogTable.COLUMN_LOG_DATE + "," +
                             LogTable.COLUMN_EVENT_DATE + "," +
-                            LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
-                    new String[]{category, description, "Expense Created", String.valueOf(amt), id, currentDate, date, ExpenseTable.TABLE_NAME});
+                            LogTable.COLUMN_TYPE + "," +
+                            LogTable.COLUMN_STATUS + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                    new String[]{category, description, "Expense Created", String.valueOf(amt), id, currentDate, date,
+                            ExpenseTable.TABLE_NAME, String.valueOf(Constants.CREATED)});
         }
 
         mDb.close();
@@ -174,7 +177,7 @@ public class CreateExpense extends Fragment {
         builderSingle.setTitle("Amount and Method Of Payment:-");
 
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
-        mopCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + ";", null);
+        mopCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_ACTIVE + " = ? ;", new String[]{String.valueOf(Constants.ACTIVATED)});
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.payment_detail_list_item,
                 mopCursor, new String[]{ReserveTable.COLUMN_TYPE}, new int[]{R.id.mop_caption}, 0);
         adapter.setDropDownViewResource(R.layout.payment_detail_list_item);
@@ -185,7 +188,6 @@ public class CreateExpense extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View v, int i, long l) {
                 v.findViewById(R.id.mop_amount).requestFocus();
-                Log.e("ERR", v.toString());
             }
         });
         paymentList.setAdapter(adapter);

@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
+import com.project.pocketexpensemanager.constant.Constants;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
 import com.project.pocketexpensemanager.database.table.LogTable;
 import com.project.pocketexpensemanager.database.table.ReserveTable;
@@ -62,7 +63,7 @@ public class CreateTransfer extends Fragment {
 
         //Method Of Payment Picker
         int[] adapterRowViews = new int[]{android.R.id.text1};
-        mopCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + ";", null);
+        mopCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_ACTIVE + " = ? ;", new String[]{String.valueOf(Constants.ACTIVATED)});
         SimpleCursorAdapter mopSca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_spinner_item,
                 mopCursor, new String[]{ReserveTable.COLUMN_TYPE}, adapterRowViews, 0);
         mopSca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -165,8 +166,10 @@ public class CreateTransfer extends Fragment {
                             LogTable.COLUMN_HIDDEN_ID + "," +
                             LogTable.COLUMN_LOG_DATE + "," +
                             LogTable.COLUMN_EVENT_DATE + "," +
-                            LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
-                    new String[]{from_mode + " -> " + to_mode, description, "Transfer Created", amount, id, currentDate, date, TransferTable.TABLE_NAME});
+                            LogTable.COLUMN_TYPE + "," +
+                            LogTable.COLUMN_STATUS + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                    new String[]{from_mode + " -> " + to_mode, description, "Transfer Created", amount, id, currentDate, date,
+                            TransferTable.TABLE_NAME, String.valueOf(Constants.CREATED)});
         }
         mDb.close();
         mDisplay.displayFragment(HomeActivity.SEE_LOG);
