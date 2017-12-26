@@ -15,7 +15,7 @@ public class CategoryTable implements BaseColumns{
     private static final String TABLE_CREATE = "create table " + TABLE_NAME + " (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             COLUMN_TYPE + " VARCHAR(20), " +
-            COLUMN_ACTIVE + "INTEGER" +
+            COLUMN_ACTIVE + " INTEGER" +
             ");";
 
     public static void onCreate(SQLiteDatabase database) {

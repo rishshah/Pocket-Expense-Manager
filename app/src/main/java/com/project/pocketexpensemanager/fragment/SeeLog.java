@@ -240,7 +240,7 @@ public class SeeLog extends Fragment {
                                 LogTable.COLUMN_EVENT_DATE + "," +
                                 LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
                         new String[]{newFromMode + " -> " + newToMode, newDescription, "Transfer Updated", newAmount, id, currentDate, newDate, TransferTable.TABLE_NAME});
-
+                mDb.close();
                 mDisplay.displayFragment(HomeActivity.SEE_LOG);
             }
         });
@@ -273,7 +273,8 @@ public class SeeLog extends Fragment {
                                 "Transfer Deleted", transferCursor.getString(2), transferCursor.getString(0), currentDate,
                                 transferCursor.getString(1), TransferTable.TABLE_NAME});
                 mDb.close();
-                dialog.dismiss();
+                mDisplay.displayFragment(HomeActivity.SEE_LOG);
+
             }
         });
         AlertDialog b = dialogBuilder.create();

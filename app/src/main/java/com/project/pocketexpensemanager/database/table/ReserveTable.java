@@ -16,7 +16,7 @@ public class ReserveTable implements BaseColumns{
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             COLUMN_TYPE + " VARCHAR(20), " +
             COLUMN_START_AMT + " FLOAT, " +
-            COLUMN_ACTIVE + "INTEGER" +
+            COLUMN_ACTIVE + " INTEGER" +
             ");";
 
     public static void onCreate(SQLiteDatabase database) {

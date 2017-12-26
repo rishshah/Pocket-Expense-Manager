@@ -44,7 +44,7 @@ public class SeeReserve extends Fragment {
         reserveCursor = mDb.rawQuery("with a(" + ReserveTable.COLUMN_TYPE + ",amt1) as (select " + ExpenseAmountTable.COLUMN_MOP + ", sum(" + ExpenseAmountTable.COLUMN_AMOUNT + ") from " + ExpenseAmountTable.TABLE_NAME + " group by " + ExpenseAmountTable.COLUMN_MOP + "), " +
                 "b(" + ReserveTable.COLUMN_TYPE + ",amt2) as (select " + TransferTable.COLUMN_FROM_MODE + ", sum(" + TransferTable.COLUMN_AMOUNT + ")  from " + TransferTable.TABLE_NAME + " group by " + TransferTable.COLUMN_FROM_MODE + ")," +
                 "c(" + ReserveTable.COLUMN_TYPE + ",amt3) as (select " + TransferTable.COLUMN_TO_MODE + ", sum(" + TransferTable.COLUMN_AMOUNT + ")  from " + TransferTable.TABLE_NAME + " group by " + TransferTable.COLUMN_TO_MODE + ")," +
-                "final_one(_id, " + ReserveTable.COLUMN_TYPE + ", " + ReserveTable.COLUMN_START_AMT + "," + ReserveTable.COLUMN_ACTIVE + " amt1, amt2, amt3) as (select _id, " + ReserveTable.COLUMN_TYPE + ",  CASE WHEN " + ReserveTable.COLUMN_START_AMT + " IS NULL THEN 0 ELSE " + ReserveTable.COLUMN_START_AMT + " END, CASE WHEN amt1 IS NULL THEN 0 ELSE amt1 END, CASE WHEN amt2 IS NULL THEN 0 ELSE amt2 END, CASE WHEN amt3 IS NULL THEN 0 ELSE amt3 END from (((reserve left natural outer join a) left natural outer join b) left natural outer join c))" +
+                "final_one(_id, " + ReserveTable.COLUMN_TYPE + ", " + ReserveTable.COLUMN_ACTIVE + ", " + ReserveTable.COLUMN_START_AMT + ", amt1, amt2, amt3) as (select _id, " + ReserveTable.COLUMN_TYPE + ", " + ReserveTable.COLUMN_ACTIVE + ", CASE WHEN " + ReserveTable.COLUMN_START_AMT + " IS NULL THEN 0 ELSE " + ReserveTable.COLUMN_START_AMT + " END, CASE WHEN amt1 IS NULL THEN 0 ELSE amt1 END, CASE WHEN amt2 IS NULL THEN 0 ELSE amt2 END, CASE WHEN amt3 IS NULL THEN 0 ELSE amt3 END from (((reserve left natural outer join a) left natural outer join b) left natural outer join c))" +
                 "select _id, " + ReserveTable.COLUMN_TYPE + ",  (" + ReserveTable.COLUMN_START_AMT + " + amt3 - amt2 - amt1) as balance from final_one where " + ReserveTable.COLUMN_ACTIVE + " = ?;", new String[]{String.valueOf(Constants.ACTIVATED)});
         SimpleCursorAdapter reserveSca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_2,
                 reserveCursor, new String[]{ReserveTable.COLUMN_TYPE, "balance"}, adapterRowViews, 0);
@@ -122,7 +122,7 @@ public class SeeReserve extends Fragment {
                             " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{current_reserve});
                 }
                 mDb.close();
-                mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
+                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
             }
         });
         AlertDialog b = dialogBuilder.create();
@@ -145,8 +145,9 @@ public class SeeReserve extends Fragment {
                 if (reserveCursor != null && reserveCursor.getCount() == 0)
                     mDb.execSQL("insert into " + ReserveTable.TABLE_NAME + " (" +
                             ReserveTable.COLUMN_TYPE + ", " +
-                            ReserveTable.COLUMN_START_AMT +
-                            ") " + " values (?, ?);", new String[]{reserve, startAmount});
+                            ReserveTable.COLUMN_START_AMT + ", " +
+                            ReserveTable.COLUMN_ACTIVE +
+                            ") " + " values (?, ?, ?);", new String[]{reserve, startAmount, String.valueOf(Constants.ACTIVATED)});
                 mDb.close();
                 mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
             }

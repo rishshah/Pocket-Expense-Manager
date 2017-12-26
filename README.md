@@ -26,10 +26,10 @@
 ##Summary Feature Planning
 - Category wise expenditure pie chart (options of mothly, annually and weekly)
 - Reserve wise expenditure pie chart (options of mothly, annually and weekly)
-- List of expenses
+- List of expenses 
 - List of transfers
 - Over the budget features
 
 ## Bugs
-- Reserve, Category delete feature.  
-- Not allowing expense, transfers that make the balance negative
+- Problem with editing the transfers and expenses of deleted categories and reserves (ALLOWED - Only the new creations would be affected by deleting reserves and categories)
+- Not allowing expense, transfers that make the balance negative (ALLOWED - Somepeople just put updates for now creating negative balance and perform them later)

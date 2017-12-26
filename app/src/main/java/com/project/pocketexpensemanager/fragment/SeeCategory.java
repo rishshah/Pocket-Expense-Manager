@@ -39,7 +39,7 @@ public class SeeCategory extends Fragment {
         int[] adapterRowViews = new int[]{android.R.id.text1};
 
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
-        categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + "where " + CategoryTable.COLUMN_ACTIVE + " = ?;", new String[]{String.valueOf(Constants.ACTIVATED)});
+        categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_ACTIVE + " = ?;", new String[]{String.valueOf(Constants.ACTIVATED)});
         SimpleCursorAdapter categorySca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_1,
                 categoryCursor, new String[]{CategoryTable.COLUMN_TYPE}, adapterRowViews, 0);
         categorySca.setDropDownViewResource(android.R.layout.simple_list_item_1);
