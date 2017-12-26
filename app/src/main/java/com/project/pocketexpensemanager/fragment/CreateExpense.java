@@ -9,8 +9,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.app.Fragment;
-import android.support.design.widget.FloatingActionButton;
+import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,19 +46,36 @@ public class CreateExpense extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.create_expense, container, false);
+        final View dateText = view.findViewById(R.id.date_text);
+        final View descriptionText = view.findViewById(R.id.description_text);
+        final View categorySpinner = view.findViewById(R.id.category_spinner);
 
+        final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
-        int[] adapterRowViews = new int[]{android.R.id.text1};
+
+        //DescriptionText
+        descriptionText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent keyEvent) {
+                if(keyCode == 66 && keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER){
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+                return false;
+            }
+        });
+
         // Category picker
+        int[] adapterRowViews = new int[]{android.R.id.text1};
         categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + ";", null);
         SimpleCursorAdapter categorySca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_spinner_item,
                 categoryCursor, new String[]{CategoryTable.COLUMN_TYPE}, adapterRowViews, 0);
         categorySca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ((Spinner) view.findViewById(R.id.category_spinner)).setAdapter(categorySca);
+        ((Spinner) categorySpinner).setAdapter(categorySca);
 
         mDb.close();
         // Date Picker
-        view.findViewById(R.id.date_text).setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        ((EditText)dateText).setInputType(InputType.TYPE_NULL);
+        dateText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
@@ -74,60 +92,15 @@ public class CreateExpense extends Fragment {
                     }, mYear, mMonth, mDay);
                     mDatePicker.setTitle("Select date");
                     mDatePicker.show();
+                    categorySpinner.performClick();
                 }
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab_save_expxense);
-        fab.setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.fab_save_expxense).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String date = ((EditText) view.findViewById(R.id.date_text)).getText().toString();
-                String category = ((TextView) ((Spinner) view.findViewById(R.id.category_spinner)).getSelectedView()).getText().toString();
-                String description = ((EditText) view.findViewById(R.id.description_text)) .getText().toString();
-
-                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
-                mDb.execSQL("insert into " + ExpenseTable.TABLE_NAME + " (" +
-                                ExpenseTable.COLUMN_DATE + "," +
-                                ExpenseTable.COLUMN_CATEGORY + "," +
-                                ExpenseTable.COLUMN_DESCRIPTION +
-                                ") " + " values (?, ?, ?);",
-                        new String[]{date, category, description});
-
-                expenseCursor = mDb.rawQuery("SELECT _id from " + ExpenseTable.TABLE_NAME + " order by _id DESC limit 1;", null);
-                if (expenseCursor.moveToFirst()) {
-                    String[] mop = ((TextView) view.findViewById(R.id.amount_text)).getText().toString().split(", ");
-                    String id = expenseCursor.getString(0);
-                    float amt = 0f;
-                    for (String payment : mop) {
-                        String reserve = payment.split("-")[0];
-                        String amount = payment.split("-")[1];
-                        amt += Float.valueOf(amount);
-                        mDb.execSQL("insert into " + ExpenseAmountTable.TABLE_NAME + " (" +
-                                        ExpenseAmountTable.COLUMN_EXPENSE_ID + "," +
-                                        ExpenseAmountTable.COLUMN_MOP + "," +
-                                        ExpenseAmountTable.COLUMN_AMOUNT +
-                                        ") " + " values (?, ?, ?);",
-                                new String[]{id, reserve, amount});
-                    }
-
-                    Calendar calendar = Calendar.getInstance();
-                    String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
-                            String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
-                    mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
-                                    LogTable.COLUMN_TITLE + "," +
-                                    LogTable.COLUMN_DESCRIPTION_MAIN + "," +
-                                    LogTable.COLUMN_DESCRIPTION_SUB + "," +
-                                    LogTable.COLUMN_AMOUNT + "," +
-                                    LogTable.COLUMN_HIDDEN_ID + "," +
-                                    LogTable.COLUMN_LOG_DATE + "," +
-                                    LogTable.COLUMN_EVENT_DATE + "," +
-                                    LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
-                            new String[]{category, description, "Expense Created", String.valueOf(amt), id, currentDate, date, ExpenseTable.TABLE_NAME});
-                }
-
-                mDb.close();
-                mDisplay.displayFragment(HomeActivity.SEE_LOG);
+                saveExpense(view);
             }
         });
 
@@ -137,7 +110,60 @@ public class CreateExpense extends Fragment {
                 addDetailedPayment(view);
             }
         });
+
+        descriptionText.requestFocus();
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+
         return view;
+    }
+
+    private void saveExpense(View view) {
+        String date = ((EditText) view.findViewById(R.id.date_text)).getText().toString();
+        String category = ((TextView) ((Spinner) view.findViewById(R.id.category_spinner)).getSelectedView()).getText().toString();
+        String description = ((EditText) view.findViewById(R.id.description_text)).getText().toString();
+
+        SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+        mDb.execSQL("insert into " + ExpenseTable.TABLE_NAME + " (" +
+                        ExpenseTable.COLUMN_DATE + "," +
+                        ExpenseTable.COLUMN_CATEGORY + "," +
+                        ExpenseTable.COLUMN_DESCRIPTION +
+                        ") " + " values (?, ?, ?);",
+                new String[]{date, category, description});
+
+        expenseCursor = mDb.rawQuery("SELECT _id from " + ExpenseTable.TABLE_NAME + " order by _id DESC limit 1;", null);
+        if (expenseCursor.moveToFirst()) {
+            String[] mop = ((TextView) view.findViewById(R.id.amount_text)).getText().toString().split(", ");
+            String id = expenseCursor.getString(0);
+            float amt = 0f;
+            for (String payment : mop) {
+                String reserve = payment.split("-")[0];
+                String amount = payment.split("-")[1];
+                amt += Float.valueOf(amount);
+                mDb.execSQL("insert into " + ExpenseAmountTable.TABLE_NAME + " (" +
+                                ExpenseAmountTable.COLUMN_EXPENSE_ID + "," +
+                                ExpenseAmountTable.COLUMN_MOP + "," +
+                                ExpenseAmountTable.COLUMN_AMOUNT +
+                                ") " + " values (?, ?, ?);",
+                        new String[]{id, reserve, amount});
+            }
+
+            Calendar calendar = Calendar.getInstance();
+            String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
+                    String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+            mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
+                            LogTable.COLUMN_TITLE + "," +
+                            LogTable.COLUMN_DESCRIPTION_MAIN + "," +
+                            LogTable.COLUMN_DESCRIPTION_SUB + "," +
+                            LogTable.COLUMN_AMOUNT + "," +
+                            LogTable.COLUMN_HIDDEN_ID + "," +
+                            LogTable.COLUMN_LOG_DATE + "," +
+                            LogTable.COLUMN_EVENT_DATE + "," +
+                            LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
+                    new String[]{category, description, "Expense Created", String.valueOf(amt), id, currentDate, date, ExpenseTable.TABLE_NAME});
+        }
+
+        mDb.close();
+        mDisplay.displayFragment(HomeActivity.SEE_LOG);
     }
 
     private void addDetailedPayment(final View view) {

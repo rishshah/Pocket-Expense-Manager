@@ -11,10 +11,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -83,6 +85,9 @@ public class SeeExpense extends Fragment {
         dialogBuilder.setView(dialogView);
         dialogBuilder.setTitle("Edit Expense");
 
+        final View dateText = dialogView.findViewById(R.id.date_text);
+        final View descriptionText = dialogView.findViewById(R.id.description_text);
+        final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
         // Category picker
         categoryCursor = mDb.rawQuery("SELECT * FROM " + CategoryTable.TABLE_NAME + ";", null);
@@ -93,20 +98,21 @@ public class SeeExpense extends Fragment {
         // Set current category
         categoryCursor = mDb.rawQuery("SELECT _id FROM " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ?;", new String[]{((TextView) view.findViewById(R.id.category)).getText().toString()});
         if (categoryCursor.moveToFirst()) {
-            ((Spinner) dialogView.findViewById(R.id.category_spinner)).setSelection(categoryCursor.getInt(0)-1);
+            ((Spinner) dialogView.findViewById(R.id.category_spinner)).setSelection(categoryCursor.getInt(0) - 1);
         }
         mDb.close();
 
         //Set current date
-        ((TextView) dialogView.findViewById(R.id.date_text)).setText(getArguments().getString(ExpenseTable.COLUMN_DATE));
+        ((EditText) dateText).setText(getArguments().getString(ExpenseTable.COLUMN_DATE));
         // Date Picker
+        ((EditText) dateText).setInputType(InputType.TYPE_NULL);
         dialogView.findViewById(R.id.date_text).setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     String date = "";
                     try {
-                         date = Constants.INPUT_FORMAT.format(Constants.OUTPUT_FORMAT.parse(((TextView) view.findViewById(R.id.date)).getText().toString()));
+                        date = Constants.INPUT_FORMAT.format(Constants.OUTPUT_FORMAT.parse(((TextView) view.findViewById(R.id.date)).getText().toString()));
                     } catch (ParseException e) {
                         Log.e("DATE ERR..", e.getMessage());
                     }
@@ -119,16 +125,20 @@ public class SeeExpense extends Fragment {
                         public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
                             String date = String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear);
                             ((EditText) dialogView.findViewById(R.id.date_text)).setText(mDisplay.parseDate(date));
+                            imm.hideSoftInputFromWindow(dateText.getWindowToken(), 0);
+                            descriptionText.requestFocus();
                         }
                     }, mYear, mMonth, mDay);
                     mDatePicker.setTitle("Select date");
                     mDatePicker.show();
+                    imm.hideSoftInputFromWindow(dateText.getWindowToken(), 0);
+                    descriptionText.requestFocus();
                 }
             }
         });
 
         // Set current description
-        ((TextView) dialogView.findViewById(R.id.description_text)).setText(((AppCompatActivity) getActivity()).getSupportActionBar().getTitle());
+        ((EditText) descriptionText).setText(((AppCompatActivity) getActivity()).getSupportActionBar().getTitle());
 
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {

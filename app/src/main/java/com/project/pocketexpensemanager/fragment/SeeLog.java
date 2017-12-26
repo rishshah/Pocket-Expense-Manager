@@ -10,13 +10,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.text.InputType;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -112,6 +115,10 @@ public class SeeLog extends Fragment {
         });
         registerForContextMenu(fab);
 
+        if(getActivity().getCurrentFocus()!=null) {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        }
         return view;
     }
 
@@ -121,17 +128,24 @@ public class SeeLog extends Fragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.create_transfer, null);
         dialogBuilder.setView(dialogView);
-        dialogBuilder.setTitle("Edit Expense");
+        dialogBuilder.setTitle("Edit Transfer");
 
+        final View dateText = dialogView.findViewById(R.id.date_text);
+        final View amountText = dialogView.findViewById(R.id.amount_text);
+        final View fromModeSpinner = dialogView.findViewById(R.id.from_mode_spinner);
+        final View toModeSpinner = dialogView.findViewById(R.id.to_mode_spinner);
+
+        final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         SQLiteDatabase mDb = dbHelper.getWritableDatabase();
-        int[] adapterRowViews = new int[]{android.R.id.text1};
+
         //Method Of Payment Picker
+        int[] adapterRowViews = new int[]{android.R.id.text1};
         mopCursor = mDb.rawQuery("SELECT * FROM " + ReserveTable.TABLE_NAME + ";", null);
         SimpleCursorAdapter mopSca = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_spinner_item,
                 mopCursor, new String[]{ReserveTable.COLUMN_TYPE}, adapterRowViews, 0);
         mopSca.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ((Spinner) dialogView.findViewById(R.id.from_mode_spinner)).setAdapter(mopSca);
-        ((Spinner) dialogView.findViewById(R.id.to_mode_spinner)).setAdapter(mopSca);
+        ((Spinner) fromModeSpinner).setAdapter(mopSca);
+        ((Spinner) toModeSpinner).setAdapter(mopSca);
         // Set current category
         mopCursor = mDb.rawQuery("SELECT _id FROM " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ?;", new String[]{transferCursor.getString(4)});
         if (mopCursor.moveToFirst()) {
@@ -145,9 +159,10 @@ public class SeeLog extends Fragment {
         mDb.close();
 
         // Set current date
-        ((TextView) dialogView.findViewById(R.id.date_text)).setText(transferCursor.getString(1));
+        ((EditText) dateText).setText(transferCursor.getString(1));
         // Date Picker
-        dialogView.findViewById(R.id.date_text).setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        ((EditText) dateText).setInputType(InputType.TYPE_NULL);
+        dateText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
@@ -166,19 +181,31 @@ public class SeeLog extends Fragment {
                         public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
                             String date = String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear);
                             ((EditText) dialogView.findViewById(R.id.date_text)).setText(mDisplay.parseDate(date));
-                            dialogView.findViewById(R.id.description_text).requestFocus();
+                            amountText.requestFocus();
                         }
                     }, mYear, mMonth, mDay);
                     mDatePicker.setTitle("Select date");
                     mDatePicker.show();
+                    amountText.requestFocus();
+                    imm.hideSoftInputFromWindow(dateText.getWindowToken(), 0);
                 }
             }
         });
 
         // Set current amount
-        ((TextView) dialogView.findViewById(R.id.amount_text)).setText(transferCursor.getString(2));
+        ((EditText) amountText).setText(transferCursor.getString(2));
+        //AmountText
+        amountText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent keyEvent) {
+                if(keyCode == 66 && keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER){
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+                return false;
+            }
+        });
         // Set current description
-        ((TextView) dialogView.findViewById(R.id.description_text)).setText(transferCursor.getString(3));
+        ((EditText) dialogView.findViewById(R.id.description_text)).setText(transferCursor.getString(3));
 
         dialogView.findViewById(R.id.fab_save_transfer).setVisibility(View.GONE);
 

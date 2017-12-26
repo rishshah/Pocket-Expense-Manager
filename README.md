@@ -14,9 +14,9 @@
 ## Advanced Features
 - Summary regarding month wise/ year wise expenditure (TRYING)
 - Summary of comparative expenditures with a pie chart amongst all categories (can be month-wise) (TRYING)
-- Summary of balanced expenses not yet paid (TRYING)
+- Summary of balanced expenses not yet paid (LATER)	
 - Multiple mode selection at the time of payment creation (DONE)
-- Linking with google drive for backup (NOPE)
+- Linking with google drive for backup (LATER)
 
 ## Todo
 - Summary page for category and figure out way to do month/sem/year wise
@@ -32,6 +32,5 @@
 
 ## Bugs
 - Expense, transfer delete feature.  
-- Keyboard should be gone when presed enter
 - Start amount reserve list item
 - Not allowing expense, transfers that make the balance negative
