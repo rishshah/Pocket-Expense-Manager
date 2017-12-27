@@ -12,24 +12,26 @@
 - Recalculate balacnces and show in Reserve Pages (DONE)
 
 ## Advanced Features
-- Summary regarding month wise/ year wise expenditure (TRYING)
-- Summary of comparative expenditures with a pie chart amongst all categories (can be month-wise) (TRYING)
-- Summary of balanced expenses not yet paid (LATER)	
 - Multiple mode selection at the time of payment creation (DONE)
+- Summary regarding month wise wise expenditure (DONE)
+- Summary of comparative expenditures with a pie chart amongst all categories month-wise (DONE)
+- Summary of balanced expenses not yet paid (LATER)	
 - Linking with google drive for backup (LATER)
 
 ## Todo
-- Summary page for category and figure out way to do month/sem/year wise
-- Pie chart option check
-- Date picker input problems
+- List of transfers (YET TO DO)
+- Reserve wise expenditure pie chart (options of mothly, annually and weekly) (YET TO DO)
 
-##Summary Feature Planning
-- Category wise expenditure pie chart (options of mothly, annually and weekly)
-- Reserve wise expenditure pie chart (options of mothly, annually and weekly)
-- List of expenses 
-- List of transfers
-- Over the budget features
+## Future Plans
+- Summary year/quarter wise
+
+## Summary Feature Planning
+- Category wise expenditure pie chart (options of mothly, annually and weekly) (DONE)
+- List of expenses  (DONE)
+- Over the budget features (LATER)
 
 ## Bugs
-- Problem with editing the transfers and expenses of deleted categories and reserves (ALLOWED - Only the new creations would be affected by deleting reserves and categories)
-- Not allowing expense, transfers that make the balance negative (ALLOWED - Somepeople just put updates for now creating negative balance and perform them LATER)
+- Problem with editing the transfers and expenses of deleted categories and reserves 
+	(ALLOWED - Only the new creations would be affected by deleting reserves and categories)
+- Not allowing expense, transfers that make the balance negative 
+	(ALLOWED - Somepeople just put updates for now creating negative balance and perform them later)
