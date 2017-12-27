@@ -64,7 +64,6 @@ public class LogItemAdapter extends CursorAdapter {
             textView.setText(cursor.getString(cursor.getColumnIndex(adapterColViews[i])));
         }
 
-
         if (deletedItems.contains(combination)) {
             statusPic.setImageResource(deletdedImg);
         } else if (latestItems.contains(log_id)) {
@@ -74,11 +73,6 @@ public class LogItemAdapter extends CursorAdapter {
         } else {
             statusPic.setImageResource(latestImg);
         }
-
-        Log.e("DeleteList", deletedItems.toString());
-        Log.e("UpdateList", updatedItems.toString());
-        Log.e("LatestList", latestItems.toString());
-        Log.e("LogId", log_id);
     }
 
 

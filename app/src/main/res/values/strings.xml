@@ -39,4 +39,11 @@
     <string name="start_amount">Start Amount…</string>
     <string name="dummy_mop">DUMMY MOP</string>
     <string name="status">status</string>
+    <string name="description">Description</string>
+    <string name="amount_title">Amount</string>
+    <string name="date">Date</string>
+    <string name="dummy_summary_title">January 2018</string>
+    <string name="total_expenses">Total Expenses</string>
+    <string name="choose_month">Choose Month</string>
+    <string name="enter_year">Enter Year…</string>
 </resources>

@@ -83,13 +83,13 @@ public class SeeReserve extends Fragment {
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
         reserveCursor = mDb.rawQuery("select _id, " + ReserveTable.COLUMN_START_AMT + " from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ", new String[]{current_reserve});
         if (reserveCursor.moveToFirst()) {
-            ((EditText) dialogView.findViewById(R.id.reserve_amount)).setText(String.valueOf(reserveCursor.getFloat(1)));
+            ((EditText) dialogView.findViewById(R.id.year_text)).setText(String.valueOf(reserveCursor.getFloat(1)));
         }
         dialogBuilder.setTitle("Edit Reserve");
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String reserve = ((EditText) dialogView.findViewById(R.id.reserve_text)).getText().toString();
-                String startAmount = ((EditText) dialogView.findViewById(R.id.reserve_amount)).getText().toString();
+                String startAmount = ((EditText) dialogView.findViewById(R.id.year_text)).getText().toString();
                 SQLiteDatabase mDb = dbHelper.getWritableDatabase();
                 reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
                 Log.e("AMT", reserve + " ; " + startAmount);
@@ -139,7 +139,7 @@ public class SeeReserve extends Fragment {
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String reserve = ((EditText) dialogView.findViewById(R.id.reserve_text)).getText().toString();
-                String startAmount = ((EditText) dialogView.findViewById(R.id.reserve_amount)).getText().toString();
+                String startAmount = ((EditText) dialogView.findViewById(R.id.year_text)).getText().toString();
                 SQLiteDatabase mDb = dbHelper.getWritableDatabase();
                 reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
                 if (reserveCursor != null && reserveCursor.getCount() == 0)

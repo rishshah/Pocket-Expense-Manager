@@ -3,28 +3,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
+    android:padding="30dp"
     tools:context="com.project.pocketexpensemanager.HomeActivity">
 
-    <EditText
-        android:id="@+id/reserve_text"
+    <TextView
+        android:id="@+id/month_caption"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:hint="@string/new_reserve"
-        android:inputType="text"
-        android:textColor="@color/black"
-        android:textColorHint="@color/grey" />
+        android:text="@string/choose_month" />
+
+    <Spinner
+        android:id="@+id/month_spinner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/month_caption" />
+
 
     <EditText
         android:id="@+id/year_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/reserve_text"
+        android:layout_below="@id/month_spinner"
         android:layout_marginTop="10dp"
-        android:hint="@string/start_amount"
-        android:textColorHint="@color/grey"
+        android:hint="@string/enter_year"
+        android:inputType="number"
         android:textColor="@color/black"
-        android:inputType="numberDecimal" />
+        android:textColorHint="@color/grey" />
 
 </RelativeLayout>

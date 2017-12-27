@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.project.pocketexpensemanager.fragments.SeeDetailedSummary;
 import com.project.pocketexpensemanager.utilities.Constants;
 import com.project.pocketexpensemanager.database.tables.ExpenseTable;
 import com.project.pocketexpensemanager.fragments.CreateExpense;
@@ -27,6 +28,7 @@ import com.project.pocketexpensemanager.fragments.SeeExpense;
 import com.project.pocketexpensemanager.fragments.communication.Display;
 
 import java.text.ParseException;
+import java.util.Calendar;
 
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Display {
@@ -71,7 +73,16 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         Fragment fragment = null;
         switch (action) {
             case SEE_SUMMARY:
-                getSupportActionBar().setTitle("Summary");
+                getSupportActionBar().setTitle("Detailed Monthly Summary");
+                Calendar calendar = Calendar.getInstance();
+                String currentMonth = Constants.MONTHS[calendar.get(Calendar.MONTH)];
+                String currentYear = String.valueOf(calendar.get(Calendar.YEAR));
+                Bundle bundle = new Bundle();
+                fragment = new SeeDetailedSummary();
+                bundle.putString("month", currentMonth);
+                bundle.putString("year", currentYear);
+                fragment.setArguments(bundle);
+
                 break;
             case SEE_SETTINGS:
                 getSupportActionBar().setTitle("Settings");
@@ -98,13 +109,16 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 fragment = new CreateTransfer();
                 break;
         }
-        if (fragment != null) {
-            fragmentTransaction.replace(R.id.fragment_container, fragment).commit();
+        if (fragment != null)
+
+        {
+            fragmentTransaction.replace(R.id.fragment_container, fragment).addToBackStack(String.valueOf(action)).commit();
         }
+
     }
 
     @Override
-    public void displayLinkedFragment(int action, Cursor cursor, String data) {
+    public void displayLinkedFragment(int action, Cursor cursor, Object data) {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         Fragment fragment = null;
@@ -113,29 +127,39 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case VIEW_PARTICULAR_EXPENSE:
                 getSupportActionBar().setTitle(cursor.getString(3));
                 fragment = new SeeExpense();
-                bundle.putString("data", data);
+                bundle.putString("data", (String) data);
                 bundle.putString("_id", cursor.getString(0));
                 bundle.putString(ExpenseTable.COLUMN_DATE, cursor.getString(1));
                 bundle.putString(ExpenseTable.COLUMN_CATEGORY, cursor.getString(2));
                 bundle.putString(ExpenseTable.COLUMN_DESCRIPTION, cursor.getString(3));
                 fragment.setArguments(bundle);
                 break;
+
+            case SEE_SUMMARY:
+                getSupportActionBar().setTitle("Detailed Monthly Summary");
+                String currentMonth = ((String[]) data)[0];
+                String currentYear = ((String[]) data)[1];
+
+                fragment = new SeeDetailedSummary();
+                bundle.putString("month", currentMonth);
+                bundle.putString("year", currentYear);
+                fragment.setArguments(bundle);
         }
         if (fragment != null) {
-            fragmentTransaction.replace(R.id.fragment_container, fragment).commit();
+            fragmentTransaction.replace(R.id.fragment_container, fragment).addToBackStack(String.valueOf(action)).commit();
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            finishAffinity();
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        if (drawer.isDrawerOpen(GravityCompat.START)) {
+//            drawer.closeDrawer(GravityCompat.START);
+//        } else {
+//            finishAffinity();
+//            super.onBackPressed();
+//        }
+//    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {

@@ -32,4 +32,4 @@
 
 ## Bugs
 - Problem with editing the transfers and expenses of deleted categories and reserves (ALLOWED - Only the new creations would be affected by deleting reserves and categories)
-- Not allowing expense, transfers that make the balance negative (ALLOWED - Somepeople just put updates for now creating negative balance and perform them later)
+- Not allowing expense, transfers that make the balance negative (ALLOWED - Somepeople just put updates for now creating negative balance and perform them LATER)
