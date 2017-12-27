@@ -13,6 +13,17 @@
     <color name="grey">#888888</color>
     <color name="black">#000000</color>
 
+    <color name="color1">#5DA5DA</color>
+    <color name="color2">#FAA43A</color>
+    <color name="color3">#60BD68</color>
+    <color name="color4">#F17CB0</color>
+    <color name="color5">#B2912F</color>
+    <color name="color6">#B276B2</color>
+    <color name="color7">#DECF3F </color>
+    <color name="color8">#F15854 </color>
+    <color name="color9">#8D8D8D</color>
+
+
     <!--<color name="colorPrimary">#FFA000</color>-->
     <!--<color name="colorPrimaryDark">#FFA000</color>-->
     <!--<color name="colorAccent">#FFA000</color>-->

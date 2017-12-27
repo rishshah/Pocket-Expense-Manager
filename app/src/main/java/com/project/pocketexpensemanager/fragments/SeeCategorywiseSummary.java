@@ -8,16 +8,23 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.R;
 import com.project.pocketexpensemanager.database.DatabaseHelper;
@@ -26,44 +33,48 @@ import com.project.pocketexpensemanager.database.tables.ExpenseTable;
 import com.project.pocketexpensemanager.fragments.communication.Display;
 import com.project.pocketexpensemanager.utilities.Constants;
 
-public class SeeDetailedSummary extends Fragment {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class SeeCategorywiseSummary extends Fragment {
     private Display mDisplay;
     private DatabaseHelper dbHelper;
     private Cursor expenseCursor;
+    private PieChart pieChart;
+    private Map<String, Float> categoryMap;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.summary_detailed, container, false);
+        final View view = inflater.inflate(R.layout.summary_categorywise, container, false);
 
         // Set Title
         String currentMonth = getArguments().getString("month");
         String currentYear = getArguments().getString("year");
         ((TextView) view.findViewById(R.id.title)).setText(currentMonth + " " + currentYear);
 
-
-        //SummaryTable
+        //ExpenseTotal
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
-        int[] adapterRowViews = new int[]{R.id.date_text, R.id.category_text, R.id.amount_text, R.id.description_text};
-        String[] adapterColViews = new String[]{ExpenseTable.COLUMN_DATE, ExpenseTable.COLUMN_CATEGORY, "amount", ExpenseTable.COLUMN_DESCRIPTION};
-
         expenseCursor = mDb.rawQuery("select " + ExpenseTable.TABLE_NAME + "._id, " + ExpenseTable.COLUMN_DATE + ", " + ExpenseTable.COLUMN_DESCRIPTION + ", " + ExpenseTable.COLUMN_CATEGORY + ", sum(" + ExpenseAmountTable.COLUMN_AMOUNT + ") as amount from " +
                         ExpenseTable.TABLE_NAME + ", " + ExpenseAmountTable.TABLE_NAME + " where " +
                         ExpenseAmountTable.COLUMN_EXPENSE_ID + " = " + ExpenseTable.TABLE_NAME + "._id  and " +
                         ExpenseTable.COLUMN_DATE + " like ? group by " + ExpenseTable.TABLE_NAME + "._id order by " + ExpenseTable.COLUMN_DATE + " desc;",
                 new String[]{currentMonth.substring(0, 3) + "%" + currentYear});
 
-        SimpleCursorAdapter transactionSca = new SimpleCursorAdapter(getActivity(), R.layout.summary_item,
-                expenseCursor, adapterColViews, adapterRowViews, 0);
-        transactionSca.setDropDownViewResource(R.layout.summary_item);
-        ListView expense_list = (ListView) view.findViewById(R.id.mop_list);
-        expense_list.setAdapter(transactionSca);
-
         float amt = 0f;
+        categoryMap = new HashMap<>();
         while (expenseCursor.moveToNext()) {
             amt += expenseCursor.getFloat(4);
+            if (!categoryMap.containsKey(expenseCursor.getString(3))) {
+                categoryMap.put(expenseCursor.getString(3), expenseCursor.getFloat(4));
+            } else {
+                categoryMap.put(expenseCursor.getString(3), categoryMap.get(expenseCursor.getString(3)) + expenseCursor.getFloat(4));
+            }
         }
         ((TextView) view.findViewById(R.id.expense_total_text)).setText(String.valueOf(amt));
+
         //EditMonthYearDialog
         view.findViewById(R.id.fab_settings).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,7 +83,63 @@ public class SeeDetailedSummary extends Fragment {
             }
         });
 
+        //Piechart
+        pieChart = (PieChart) view.findViewById(R.id.pie_chart);
+        modelProperties();
+        addData();
+        pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+                Log.e("event", "onValueSelected: " + e.toString());
+            }
+
+            @Override
+            public void onNothingSelected() {
+
+            }
+        });
         return view;
+    }
+
+    private void addData() {
+        List<PieEntry> yEntries = new ArrayList<>();
+
+        for (String category : categoryMap.keySet()) {
+            yEntries.add(new PieEntry(categoryMap.get(category), category));
+        }
+
+        PieDataSet pieDataSet = new PieDataSet(yEntries, "");
+        pieDataSet.setSliceSpace(2);
+        pieDataSet.setValueTextSize(12);
+        pieDataSet.setColors(new int[]{
+                R.color.color3,
+                R.color.color2,
+                R.color.color1,
+                R.color.color8,
+                R.color.color6,
+                R.color.color5,
+                R.color.color7,
+                R.color.color4,
+                R.color.color9
+        }, getActivity());
+
+        pieChart.setData(new PieData(pieDataSet));
+        pieChart.invalidate();
+    }
+
+    private void modelProperties() {
+
+        pieChart.setRotationEnabled(true);
+        pieChart.setHoleRadius(50f);
+        pieChart.setTransparentCircleAlpha(150);
+        pieChart.setCenterText("Categorywise Expenditure");
+        pieChart.setCenterTextSize(20);
+        pieChart.setDrawEntryLabels(true);
+        //Legend
+        Legend legend = pieChart.getLegend();
+        legend.setForm(Legend.LegendForm.CIRCLE);
+        legend.setFormSize(10f);
+        legend.setPosition(Legend.LegendPosition.LEFT_OF_CHART);
     }
 
     private void show_time_selection_dialog(View view) {

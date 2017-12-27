@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.project.pocketexpensemanager.fragments.SeeCategorywiseSummary;
 import com.project.pocketexpensemanager.fragments.SeeDetailedSummary;
 import com.project.pocketexpensemanager.utilities.Constants;
 import com.project.pocketexpensemanager.database.tables.ExpenseTable;
@@ -78,7 +79,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 String currentMonth = Constants.MONTHS[calendar.get(Calendar.MONTH)];
                 String currentYear = String.valueOf(calendar.get(Calendar.YEAR));
                 Bundle bundle = new Bundle();
-                fragment = new SeeDetailedSummary();
+                fragment = new SeeCategorywiseSummary();
                 bundle.putString("month", currentMonth);
                 bundle.putString("year", currentYear);
                 fragment.setArguments(bundle);
@@ -140,7 +141,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 String currentMonth = ((String[]) data)[0];
                 String currentYear = ((String[]) data)[1];
 
-                fragment = new SeeDetailedSummary();
+                fragment = new SeeCategorywiseSummary();
                 bundle.putString("month", currentMonth);
                 bundle.putString("year", currentYear);
                 fragment.setArguments(bundle);
