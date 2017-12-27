@@ -3,19 +3,23 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_menu_send"
+            android:icon="@drawable/ic_home"
             android:title="@string/home" />
         <item
-            android:id="@+id/nav_summary"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="@string/summary" />
+            android:id="@+id/nav_categorywise_summary"
+            android:icon="@drawable/ic_summary"
+            android:title="@string/categorywise_summary" />
+        <item
+            android:id="@+id/nav_detailed_summary"
+            android:icon="@drawable/ic_summary"
+            android:title="@string/detailed_summary" />
         <item
             android:id="@+id/nav_category"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_category"
             android:title="@string/category2" />
         <item
             android:id="@+id/nav_reserve"
-            android:icon="@drawable/ic_menu_share"
+            android:icon="@drawable/ic_reserve"
             android:title="@string/reserve" />
         <item
             android:id="@+id/nav_settings"

@@ -38,7 +38,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public static final int SEE_LOG = 5;
     public static final int SEE_CATEGORY = 4;
     public static final int SEE_RESERVE = 6;
-    public static final int SEE_SUMMARY = 3;
+    public static final int SEE_CATEGORYWISE_SUMMARY = 3;
+    public static final int SEE_DETAILED_SUMMARY = 9;
     public static final int SEE_SETTINGS = 8;
     public static final int VIEW_PARTICULAR_EXPENSE = 7;
 
@@ -73,7 +74,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         Fragment fragment = null;
         switch (action) {
-            case SEE_SUMMARY:
+            case SEE_CATEGORYWISE_SUMMARY:
                 getSupportActionBar().setTitle("Detailed Monthly Summary");
                 Calendar calendar = Calendar.getInstance();
                 String currentMonth = Constants.MONTHS[calendar.get(Calendar.MONTH)];
@@ -83,8 +84,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 bundle.putString("month", currentMonth);
                 bundle.putString("year", currentYear);
                 fragment.setArguments(bundle);
-
                 break;
+
+            case SEE_DETAILED_SUMMARY:
+                getSupportActionBar().setTitle("Detailed Monthly Summary");
+                calendar = Calendar.getInstance();
+                currentMonth = Constants.MONTHS[calendar.get(Calendar.MONTH)];
+                currentYear = String.valueOf(calendar.get(Calendar.YEAR));
+                bundle = new Bundle();
+                fragment = new SeeDetailedSummary();
+                bundle.putString("month", currentMonth);
+                bundle.putString("year", currentYear);
+                fragment.setArguments(bundle);
+                break;
+
             case SEE_SETTINGS:
                 getSupportActionBar().setTitle("Settings");
                 break;
@@ -136,7 +149,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 fragment.setArguments(bundle);
                 break;
 
-            case SEE_SUMMARY:
+            case SEE_CATEGORYWISE_SUMMARY:
                 getSupportActionBar().setTitle("Detailed Monthly Summary");
                 String currentMonth = ((String[]) data)[0];
                 String currentYear = ((String[]) data)[1];
@@ -145,6 +158,18 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 bundle.putString("month", currentMonth);
                 bundle.putString("year", currentYear);
                 fragment.setArguments(bundle);
+                break;
+
+            case SEE_DETAILED_SUMMARY:
+                getSupportActionBar().setTitle("Detailed Monthly Summary");
+                currentMonth = ((String[]) data)[0];
+                currentYear = ((String[]) data)[1];
+
+                fragment = new SeeDetailedSummary();
+                bundle.putString("month", currentMonth);
+                bundle.putString("year", currentYear);
+                fragment.setArguments(bundle);
+                break;
         }
         if (fragment != null) {
             fragmentTransaction.replace(R.id.fragment_container, fragment).addToBackStack(String.valueOf(action)).commit();
@@ -166,9 +191,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_summary) {
-            displayFragment(SEE_SUMMARY);
-            //TODO Summary Page
+        if (id == R.id.nav_categorywise_summary) {
+            displayFragment(SEE_CATEGORYWISE_SUMMARY);
+        } else if (id == R.id.nav_detailed_summary) {
+            displayFragment(SEE_DETAILED_SUMMARY);
         } else if (id == R.id.nav_category) {
             displayFragment(SEE_CATEGORY);
         } else if (id == R.id.nav_reserve) {

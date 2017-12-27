@@ -176,7 +176,7 @@ public class SeeCategorywiseSummary extends Fragment {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String newYear = ((EditText) dialogView.findViewById(R.id.year_text)).getText().toString();
                 String newMonth = ((TextView) ((Spinner) dialogView.findViewById(R.id.month_spinner)).getSelectedView()).getText().toString();
-                mDisplay.displayLinkedFragment(HomeActivity.SEE_SUMMARY, null, new String[]{newMonth, newYear});
+                mDisplay.displayLinkedFragment(HomeActivity.SEE_CATEGORYWISE_SUMMARY, null, new String[]{newMonth, newYear});
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
