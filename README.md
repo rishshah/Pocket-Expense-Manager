@@ -1,5 +1,5 @@
 # Pocket-Expense-Manager
-- Easy and customizable accounting app
+- Easy and customizable accounting app limked with google drive for backup and restore data
 - You can add your own categories the interest you, customize the reserves you have and get summary of how have you spent / earned money 
 
 ## Basic Features
@@ -13,23 +13,22 @@
 
 ## Advanced Features
 - Multiple mode selection at the time of payment creation (DONE)
-- Summary regarding month wise wise expenditure (DONE)
+- Summary regarding month wise  expenditure (DONE)
 - Summary of comparative expenditures with a pie chart amongst all categories month-wise (DONE)
+- Linking with google drive for backup (DONE)
 - Summary of balanced expenses not yet paid (LATER)	
-- Linking with google drive for backup (YET TO DO)
 
 ## Todo
-- List of transfers (YET TO DO)
-- Reserve wise expenditure pie chart (options of mothly, annually and weekly) (YET TO DO)
+- Input Validation everywhere (YET TO DO)
 
 ## Future Plans
-- Summary year/quarter wise
-- Send mails to people regarding this month's summary
+- Summary year/quarter wise (EASY)
+- List of transfers (EASY)
+- Reserve wise expenditure pie chart (options of mothly, annually and weekly) (EASY)
+- Send mails to people regarding this month's summary (MEDIUM)
+- Borrow money, Income feature (MEDIUM)
+- Monthly budget set feature and summary regarding overbudget expenditure (HARD)
 
-## Summary Feature Planning
-- Category wise expenditure pie chart (options of mothly, annually and weekly) (DONE)
-- List of expenses  (DONE)
-- Over the budget features (LATER)
 
 ## Bugs
 - Problem with editing the transfers and expenses of deleted categories and reserves 

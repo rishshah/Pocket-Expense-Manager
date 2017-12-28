@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,13 +22,9 @@ import android.widget.Toast;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.MetadataBuffer;
+import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.MetadataChangeSet;
-import com.google.android.gms.drive.query.Filters;
-import com.google.android.gms.drive.query.Query;
-import com.google.android.gms.drive.query.SearchableField;
 import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -54,9 +51,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 
 
-public class HomeActivity extends DriveBase implements NavigationView.OnNavigationItemSelectedListener, Display, OnCompleteListener<DriveFolder> {
+public class HomeActivity extends DriveBase implements NavigationView.OnNavigationItemSelectedListener, Display {
     public static final int CREATE_EXPENSE = 1;
     public static final int CREATE_TRANSFER = 2;
     public static final int SEE_LOG = 5;
@@ -66,6 +64,8 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
     public static final int SEE_DETAILED_SUMMARY = 9;
     public static final int SEE_SETTINGS = 8;
     public static final int VIEW_PARTICULAR_EXPENSE = 7;
+
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +87,7 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         toggle.syncState();
 
         NavigationView nav = (NavigationView) findViewById(R.id.nav_view);
-        final SharedPreferences sharedPreferences = getSharedPreferences("AccountDetails", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("AccountDetails", Context.MODE_PRIVATE);
         ((TextView) nav.getHeaderView(0).findViewById(R.id.username)).setText(sharedPreferences.getString(LoginActivity.USERNAME, ""));
         ((TextView) nav.getHeaderView(0).findViewById(R.id.email)).setText(sharedPreferences.getString(LoginActivity.EMAIL, ""));
         nav.setNavigationItemSelectedListener(this);
@@ -257,56 +257,74 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         if (action.equals("EXPORT"))
             exportDatabase();
         else if (action.equals("IMPORT"))
-            getDriveResourceClient().getRootFolder().addOnCompleteListener(this);
+            importDatabase();
     }
 
-    @Override
-    public void onComplete(@NonNull Task<DriveFolder> task) {
-        DriveFolder appFolder = task.getResult();
-        Query query = new Query.Builder().addFilter(Filters.contains(SearchableField.TITLE, "PocketExpenseManger.db")).build();
-        Task<MetadataBuffer> queryTask = getDriveResourceClient().queryChildren(appFolder, query);
-        queryTask.addOnSuccessListener(this, new OnSuccessListener<MetadataBuffer>() {
-            @Override
-            public void onSuccess(MetadataBuffer metadataBuffer) {
-                retrieveContents(metadataBuffer.get(0).getDriveId().asDriveFile());
-                metadataBuffer.release();
-                showMessage("Import Successful");
-            }
-        }).addOnFailureListener(this, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                showMessage("Error reading Appdata");
-            }
-        });
+    private void importDatabase() {
+        DriveId id = DriveId.decodeFromString(sharedPreferences.getString("DRIVE_ID", ""));
+        retrieveContents(id.asDriveFile());
+
     }
 
     private void exportDatabase() {
-        final Task<DriveFolder> appFolderTask = getDriveResourceClient().getRootFolder();
-        final Task<DriveContents> createContentsTask = getDriveResourceClient().createContents();
-        Tasks.whenAll(appFolderTask, createContentsTask).continueWithTask(new Continuation<Void, Task<DriveFile>>() {
-            @Override
-            public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
-                DriveFolder parent = appFolderTask.getResult();
-                DriveContents contents = createContentsTask.getResult();
-                writeContents(contents);
-                MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                        .setTitle("PocketExpenseManger.db")
-                        .setMimeType("application/x-sqlite3")
-                        .setStarred(true)
-                        .build();
-                return getDriveResourceClient().createFile(parent, changeSet, contents);
-            }
-        }).addOnSuccessListener(this, new OnSuccessListener<DriveFile>() {
-            @Override
-            public void onSuccess(DriveFile driveFile) {
-                showMessage("BackUp Done");
-            }
-        }).addOnFailureListener(this, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                showMessage("Failed to create backup file. Retry later");
-            }
-        });
+        String driveIdString = sharedPreferences.getString("DRIVE_ID", "");
+        if (driveIdString.equals("")) {
+            final Task<DriveFolder> appFolderTask = getDriveResourceClient().getRootFolder();
+            final Task<DriveContents> createContentsTask = getDriveResourceClient().createContents();
+            Tasks.whenAll(appFolderTask, createContentsTask).continueWithTask(new Continuation<Void, Task<DriveFile>>() {
+                @Override
+                public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
+                    DriveFolder parent = appFolderTask.getResult();
+                    DriveContents contents = createContentsTask.getResult();
+                    writeContents(contents);
+                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                            .setTitle("PocketExpenseManger.db")
+                            .setMimeType("application/x-sqlite3")
+                            .setStarred(true)
+                            .build();
+                    return getDriveResourceClient().createFile(parent, changeSet, contents);
+                }
+            }).addOnSuccessListener(this, new OnSuccessListener<DriveFile>() {
+                @Override
+                public void onSuccess(DriveFile driveFile) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("DRIVE_ID", driveFile.getDriveId().encodeToString());
+                    editor.apply();
+                    showMessage("BackUp Done");
+                }
+            }).addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    showMessage("Failed to create backup file. Retry later");
+                }
+            });
+        } else {
+            Task<DriveContents> openTask = getDriveResourceClient().openFile(DriveId.decodeFromString(driveIdString).asDriveFile(), DriveFile.MODE_READ_WRITE);
+            openTask.continueWithTask(new Continuation<DriveContents, Task<Void>>() {
+                @Override
+                public Task<Void> then(@NonNull Task<DriveContents> task) throws Exception {
+                    DriveContents driveContents = task.getResult();
+                    writeContents(driveContents);
+
+                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                            .setStarred(true)
+                            .setLastViewedByMeDate(new Date())
+                            .build();
+
+                    return getDriveResourceClient().commitContents(driveContents, changeSet);
+                }
+            }).addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    showMessage("BackUp Updated");
+                }
+            }).addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    showMessage("Failed to create backup file. Retry later");
+                }
+            });
+        }
     }
 
     private void writeContents(DriveContents driveContents) {
@@ -315,8 +333,8 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         try {
             File dbFile = new File(inFileName);
             FileInputStream fis = new FileInputStream(dbFile);
-            OutputStream output = driveContents.getOutputStream();
-
+            ParcelFileDescriptor pfd = driveContents.getParcelFileDescriptor();
+            OutputStream output = new FileOutputStream(pfd.getFileDescriptor());
             // Transfer bytes from the input file to the output file
             byte[] buffer = new byte[1024];
             int length;
@@ -341,6 +359,7 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
             public Task<Void> then(@NonNull Task<DriveContents> task) throws Exception {
                 DriveContents contents = task.getResult();
                 readContents(contents);
+                showMessage("Import Successful");
                 return getDriveResourceClient().discardContents(contents);
             }
         }).addOnFailureListener(new OnFailureListener() {
