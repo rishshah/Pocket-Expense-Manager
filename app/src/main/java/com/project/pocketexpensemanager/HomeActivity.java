@@ -12,12 +12,27 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.drive.DriveContents;
+import com.google.android.gms.drive.DriveFile;
+import com.google.android.gms.drive.DriveFolder;
+import com.google.android.gms.drive.MetadataBuffer;
+import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.android.gms.drive.query.Filters;
+import com.google.android.gms.drive.query.Query;
+import com.google.android.gms.drive.query.SearchableField;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.project.pocketexpensemanager.database.DatabaseHelper;
 import com.project.pocketexpensemanager.fragments.SeeCategorywiseSummary;
 import com.project.pocketexpensemanager.fragments.SeeDetailedSummary;
 import com.project.pocketexpensemanager.fragments.SeeSettings;
@@ -31,11 +46,17 @@ import com.project.pocketexpensemanager.fragments.SeeReserve;
 import com.project.pocketexpensemanager.fragments.SeeExpense;
 import com.project.pocketexpensemanager.fragments.communication.Display;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.Calendar;
 
 
-public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Display {
+public class HomeActivity extends DriveBase implements NavigationView.OnNavigationItemSelectedListener, Display, OnCompleteListener<DriveFolder> {
     public static final int CREATE_EXPENSE = 1;
     public static final int CREATE_TRANSFER = 2;
     public static final int SEE_LOG = 5;
@@ -188,16 +209,16 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-//    @Override
-//    public void onBackPressed() {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if (drawer.isDrawerOpen(GravityCompat.START)) {
-//            drawer.closeDrawer(GravityCompat.START);
-//        } else {
-//            finishAffinity();
-//            super.onBackPressed();
-//        }
-//    }
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            finishAffinity();
+            super.onBackPressed();
+        }
+    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -228,6 +249,133 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         } catch (ParseException e) {
             Log.e("ERROR ", e.getMessage());
             return null;
+        }
+    }
+
+    @Override
+    public void onDriveClientReady(String action) {
+        if (action.equals("EXPORT"))
+            exportDatabase();
+        else if (action.equals("IMPORT"))
+            getDriveResourceClient().getRootFolder().addOnCompleteListener(this);
+    }
+
+    @Override
+    public void onComplete(@NonNull Task<DriveFolder> task) {
+        DriveFolder appFolder = task.getResult();
+        Query query = new Query.Builder().addFilter(Filters.contains(SearchableField.TITLE, "PocketExpenseManger.db")).build();
+        Task<MetadataBuffer> queryTask = getDriveResourceClient().queryChildren(appFolder, query);
+        queryTask.addOnSuccessListener(this, new OnSuccessListener<MetadataBuffer>() {
+            @Override
+            public void onSuccess(MetadataBuffer metadataBuffer) {
+                retrieveContents(metadataBuffer.get(0).getDriveId().asDriveFile());
+                metadataBuffer.release();
+                showMessage("Import Successful");
+            }
+        }).addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showMessage("Error reading Appdata");
+            }
+        });
+    }
+
+    private void exportDatabase() {
+        final Task<DriveFolder> appFolderTask = getDriveResourceClient().getRootFolder();
+        final Task<DriveContents> createContentsTask = getDriveResourceClient().createContents();
+        Tasks.whenAll(appFolderTask, createContentsTask).continueWithTask(new Continuation<Void, Task<DriveFile>>() {
+            @Override
+            public Task<DriveFile> then(@NonNull Task<Void> task) throws Exception {
+                DriveFolder parent = appFolderTask.getResult();
+                DriveContents contents = createContentsTask.getResult();
+                writeContents(contents);
+                MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                        .setTitle("PocketExpenseManger.db")
+                        .setMimeType("application/x-sqlite3")
+                        .setStarred(true)
+                        .build();
+                return getDriveResourceClient().createFile(parent, changeSet, contents);
+            }
+        }).addOnSuccessListener(this, new OnSuccessListener<DriveFile>() {
+            @Override
+            public void onSuccess(DriveFile driveFile) {
+                showMessage("BackUp Done");
+            }
+        }).addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showMessage("Failed to create backup file. Retry later");
+            }
+        });
+    }
+
+    private void writeContents(DriveContents driveContents) {
+        final String inFileName = getDatabasePath(DatabaseHelper.DATABASE_NAME).toString();
+
+        try {
+            File dbFile = new File(inFileName);
+            FileInputStream fis = new FileInputStream(dbFile);
+            OutputStream output = driveContents.getOutputStream();
+
+            // Transfer bytes from the input file to the output file
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) > 0) {
+                output.write(buffer, 0, length);
+            }
+
+            // Close the streams
+            output.flush();
+            output.close();
+            fis.close();
+
+        } catch (IOException e) {
+            showMessage("Unable to backup database. Retry later");
+        }
+    }
+
+    private void retrieveContents(DriveFile file) {
+        Task<DriveContents> openFileTask = getDriveResourceClient().openFile(file, DriveFile.MODE_READ_ONLY);
+        openFileTask.continueWithTask(new Continuation<DriveContents, Task<Void>>() {
+            @Override
+            public Task<Void> then(@NonNull Task<DriveContents> task) throws Exception {
+                DriveContents contents = task.getResult();
+                readContents(contents);
+                return getDriveResourceClient().discardContents(contents);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showMessage("Unable to read contents");
+            }
+        });
+    }
+
+    private void showMessage(String s) {
+        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+    }
+
+    public void readContents(DriveContents contents) {
+        final String outFileName = getDatabasePath(DatabaseHelper.DATABASE_NAME).toString();
+        try {
+            InputStream is = contents.getInputStream();
+            OutputStream output = new FileOutputStream(outFileName);
+
+            // Transfer bytes from the input file to the output file
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                output.write(buffer, 0, length);
+            }
+
+            // Close the streams
+            output.flush();
+            output.close();
+            is.close();
+
+        } catch (Exception e) {
+            showMessage("Unable to import database. Retry later");
+            e.printStackTrace();
         }
     }
 }

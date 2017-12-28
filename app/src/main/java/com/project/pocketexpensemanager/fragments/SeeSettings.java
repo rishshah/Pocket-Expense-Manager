@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -75,10 +76,11 @@ public class SeeSettings extends Fragment {
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.item_backup:
-                dbHelper.exportToDrive();
+                Log.e("SETTINGS", "Strating export...");
+                ((HomeActivity)getActivity()).signIn("EXPORT");
                 return true;
             case R.id.item_import:
-                dbHelper.importFromDrive();
+                ((HomeActivity)getActivity()).signIn("IMPORT");
                 return true;
             default:
                 return false;

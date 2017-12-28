@@ -16,12 +16,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static DatabaseHelper sInstance;
 
-    private static final String DATABASE_NAME = "pem.db";
+    public static final String DATABASE_NAME = "pem.db";
     private static final int DATABASE_VERSION = 1;
     //context
     private Context mContext;
@@ -63,67 +62,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         LogTable.onUpgrade(database, oldVersion, newVersion);
     }
 
-    public void importFromDrive() {
-        String inFileName = "abc";
-        final String outFileName = mContext.getDatabasePath(DATABASE_NAME).toString();
-        try {
-            File dbFile = new File(inFileName);
-            FileInputStream fis = new FileInputStream(dbFile);
-
-            // Open the empty db as the output stream
-            OutputStream output = new FileOutputStream(outFileName);
-
-            // Transfer bytes from the input file to the output file
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = fis.read(buffer)) > 0) {
-                output.write(buffer, 0, length);
-            }
-
-            // Close the streams
-            output.flush();
-            output.close();
-            fis.close();
-
-            Log.e("DatabaseHelper", "Import Completed");
-
-        } catch (Exception e) {
-            Log.e("DatabaseHelper", "Unable to import database. Retry");
-            e.printStackTrace();
-        }
-    }
-
-    public void exportToDrive() {
-        String outFileName = "xyz";
-        //database path
-        final String inFileName = mContext.getDatabasePath(DATABASE_NAME).toString();
-
-        try {
-
-            File dbFile = new File(inFileName);
-            FileInputStream fis = new FileInputStream(dbFile);
-
-            // Open the empty db as the output stream
-            OutputStream output = new FileOutputStream(outFileName);
-
-            // Transfer bytes from the input file to the output file
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = fis.read(buffer)) > 0) {
-                output.write(buffer, 0, length);
-            }
-
-            // Close the streams
-            output.flush();
-            output.close();
-            fis.close();
-
-            Log.e("DatabaseHelper", "Backup Completed");
-
-        } catch (Exception e) {
-            Log.e("DatabaseHelper", "Unable to backup database. Retry");
-            e.printStackTrace();
-        }
-    }
 }
 
