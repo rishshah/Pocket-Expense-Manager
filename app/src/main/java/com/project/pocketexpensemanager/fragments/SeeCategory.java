@@ -72,13 +72,13 @@ public class SeeCategory extends Fragment {
     private void showEditReserveDialog(final String current_category) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.create_category, null);
+        final View dialogView = inflater.inflate(R.layout.one_edit_dialog, null);
         dialogBuilder.setView(dialogView);
-        ((EditText) dialogView.findViewById(R.id.category_text)).setText(current_category);
+        ((EditText) dialogView.findViewById(R.id.edit_text)).setText(current_category);
         dialogBuilder.setTitle("Edit Category");
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                String category = ((EditText) dialogView.findViewById(R.id.category_text)).getText().toString();
+                String category = ((EditText) dialogView.findViewById(R.id.edit_text)).getText().toString();
                 SQLiteDatabase mDb = dbHelper.getWritableDatabase();
                 categoryCursor = mDb.rawQuery("select * from " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category});
                 if (categoryCursor != null && categoryCursor.getCount() == 0)
@@ -117,13 +117,13 @@ public class SeeCategory extends Fragment {
     public void showCreateCategoryDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.create_category, null);
+        final View dialogView = inflater.inflate(R.layout.one_edit_dialog, null);
         dialogBuilder.setView(dialogView);
 
         dialogBuilder.setTitle("Create Category");
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                String category = ((EditText) dialogView.findViewById(R.id.category_text)).getText().toString();
+                String category = ((EditText) dialogView.findViewById(R.id.edit_text)).getText().toString();
                 SQLiteDatabase mDb = dbHelper.getWritableDatabase();
                 categoryCursor = mDb.rawQuery("select * from " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category});
                 if (categoryCursor != null && categoryCursor.getCount() == 0)

@@ -285,7 +285,7 @@ public class SeeLog extends Fragment {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.create_transaction, menu);
+        inflater.inflate(R.menu.transaction_type, menu);
     }
 
     public boolean onContextItemSelected(MenuItem item) {

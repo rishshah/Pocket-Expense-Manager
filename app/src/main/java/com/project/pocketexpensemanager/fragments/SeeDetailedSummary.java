@@ -44,7 +44,7 @@ public class SeeDetailedSummary extends Fragment {
 
         //SummaryTable
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
-        int[] adapterRowViews = new int[]{R.id.date_text, R.id.category_text, R.id.amount_text, R.id.description_text};
+        int[] adapterRowViews = new int[]{R.id.date_text, R.id.edit_text, R.id.amount_text, R.id.description_text};
         String[] adapterColViews = new String[]{ExpenseTable.COLUMN_DATE, ExpenseTable.COLUMN_CATEGORY, "amount", ExpenseTable.COLUMN_DESCRIPTION};
 
         expenseCursor = mDb.rawQuery("select " + ExpenseTable.TABLE_NAME + "._id, " + ExpenseTable.COLUMN_DATE + ", " + ExpenseTable.COLUMN_DESCRIPTION + ", " + ExpenseTable.COLUMN_CATEGORY + ", sum(" + ExpenseAmountTable.COLUMN_AMOUNT + ") as amount from " +

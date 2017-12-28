@@ -3,6 +3,8 @@ package com.project.pocketexpensemanager;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 
 import com.project.pocketexpensemanager.fragments.SeeCategorywiseSummary;
 import com.project.pocketexpensemanager.fragments.SeeDetailedSummary;
+import com.project.pocketexpensemanager.fragments.SeeSettings;
 import com.project.pocketexpensemanager.utilities.Constants;
 import com.project.pocketexpensemanager.database.tables.ExpenseTable;
 import com.project.pocketexpensemanager.fragments.CreateExpense;
@@ -63,8 +66,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         NavigationView nav = (NavigationView) findViewById(R.id.nav_view);
-        ((TextView) nav.getHeaderView(0).findViewById(R.id.username)).setText(getIntent().getStringExtra(LoginActivity.USERNAME));
-        ((TextView) nav.getHeaderView(0).findViewById(R.id.email)).setText(getIntent().getStringExtra(LoginActivity.EMAIL));
+        final SharedPreferences sharedPreferences = getSharedPreferences("AccountDetails", Context.MODE_PRIVATE);
+        ((TextView) nav.getHeaderView(0).findViewById(R.id.username)).setText(sharedPreferences.getString(LoginActivity.USERNAME, ""));
+        ((TextView) nav.getHeaderView(0).findViewById(R.id.email)).setText(sharedPreferences.getString(LoginActivity.EMAIL, ""));
         nav.setNavigationItemSelectedListener(this);
     }
 
@@ -99,7 +103,17 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case SEE_SETTINGS:
+                NavigationView nav = (NavigationView) findViewById(R.id.nav_view);
+                final SharedPreferences sharedPreferences = getSharedPreferences("AccountDetails", Context.MODE_PRIVATE);
+                ((TextView) nav.getHeaderView(0).findViewById(R.id.username)).setText(sharedPreferences.getString(LoginActivity.USERNAME, ""));
+                ((TextView) nav.getHeaderView(0).findViewById(R.id.email)).setText(sharedPreferences.getString(LoginActivity.EMAIL, ""));
+
                 getSupportActionBar().setTitle("Settings");
+                bundle = new Bundle();
+                fragment = new SeeSettings();
+                bundle.putString(LoginActivity.USERNAME, getIntent().getStringExtra(LoginActivity.USERNAME));
+                bundle.putString(LoginActivity.EMAIL, getIntent().getStringExtra(LoginActivity.EMAIL));
+                fragment.setArguments(bundle);
                 break;
 
             case SEE_LOG:
@@ -123,9 +137,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 fragment = new CreateTransfer();
                 break;
         }
-        if (fragment != null)
-
-        {
+        if (fragment != null) {
             fragmentTransaction.replace(R.id.fragment_container, fragment).addToBackStack(String.valueOf(action)).commit();
         }
 
@@ -201,7 +213,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             displayFragment(SEE_RESERVE);
         } else if (id == R.id.nav_settings) {
             displayFragment(SEE_SETTINGS);
-            //TODO Settings Page
         } else if (id == R.id.nav_home) {
             displayFragment(SEE_LOG);
         }

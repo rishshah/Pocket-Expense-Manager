@@ -16,7 +16,7 @@
 - Summary regarding month wise wise expenditure (DONE)
 - Summary of comparative expenditures with a pie chart amongst all categories month-wise (DONE)
 - Summary of balanced expenses not yet paid (LATER)	
-- Linking with google drive for backup (LATER)
+- Linking with google drive for backup (YET TO DO)
 
 ## Todo
 - List of transfers (YET TO DO)
@@ -24,6 +24,7 @@
 
 ## Future Plans
 - Summary year/quarter wise
+- Send mails to people regarding this month's summary
 
 ## Summary Feature Planning
 - Category wise expenditure pie chart (options of mothly, annually and weekly) (DONE)
@@ -35,3 +36,4 @@
 	(ALLOWED - Only the new creations would be affected by deleting reserves and categories)
 - Not allowing expense, transfers that make the balance negative 
 	(ALLOWED - Somepeople just put updates for now creating negative balance and perform them later)
+- Input Validation everywhere (YET TO DO)

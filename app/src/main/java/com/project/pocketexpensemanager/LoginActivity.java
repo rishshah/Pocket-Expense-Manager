@@ -11,8 +11,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity {
-    public static final String USERNAME = "username";
-    public static final String EMAIL = "email";
+    public static final String USERNAME = "Username";
+    public static final String EMAIL = "EmailId";
     public static final String NEWUSER = "newUser";
 
     @Override
@@ -20,7 +20,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        final SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = getSharedPreferences("AccountDetails", Context.MODE_PRIVATE);
         String existingUsername = sharedPreferences.getString(USERNAME, "");
         if (existingUsername.equals("")) {
 
@@ -37,8 +37,8 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString(USERNAME, username);
                         editor.putString(EMAIL, email);
                         editor.apply();
-                        Toast.makeText(getApplication(), "Welcome ... ", Toast.LENGTH_LONG).show();
-                        goToHomeActivity(300, true, username, email);
+                        Toast.makeText(getApplication(), "Welcome " + username + "... ", Toast.LENGTH_SHORT).show();
+                        goToHomeActivity(300, true);
                     }
                 }
             });
@@ -46,20 +46,18 @@ public class LoginActivity extends AppCompatActivity {
             findViewById(R.id.username_text).setVisibility(View.GONE);
             findViewById(R.id.email_text).setVisibility(View.GONE);
             findViewById(R.id.continue_button).setVisibility(View.GONE);
-            Toast.makeText(getApplication(), "Welcome Again... ", Toast.LENGTH_LONG).show();
-            goToHomeActivity(500, false, sharedPreferences.getString(USERNAME, ""), sharedPreferences.getString(EMAIL, ""));
+            Toast.makeText(getApplication(), "Welcome Again... ", Toast.LENGTH_SHORT).show();
+            goToHomeActivity(500, false);
         }
     }
 
-    private void goToHomeActivity(int time, final boolean newUser,final String username,final String email) {
+    private void goToHomeActivity(int time, final boolean newUser) {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                 intent.putExtra(NEWUSER, newUser);
-                intent.putExtra(USERNAME, username);
-                intent.putExtra(EMAIL, email);
                 startActivity(intent);
             }
         }, time);

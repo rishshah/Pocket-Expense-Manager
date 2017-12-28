@@ -9,6 +9,7 @@
             android:id="@+id/nav_categorywise_summary"
             android:icon="@drawable/ic_summary"
             android:title="@string/categorywise_summary" />
+
         <item
             android:id="@+id/nav_detailed_summary"
             android:icon="@drawable/ic_summary"

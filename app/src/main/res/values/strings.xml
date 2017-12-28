@@ -48,4 +48,7 @@
     <string name="enter_year">Enter Year…</string>
     <string name="categorywise_summary">Categorywise Summary</string>
     <string name="detailed_summary">Detailed Summary</string>
+    <string name="icon">icon</string>
+    <string name="backup_to_drive">BackUp to Drive</string>
+    <string name="import_from_drive">Import from Drive</string>
 </resources>
