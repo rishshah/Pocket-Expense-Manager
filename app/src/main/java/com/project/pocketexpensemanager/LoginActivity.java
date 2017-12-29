@@ -14,13 +14,15 @@ public class LoginActivity extends AppCompatActivity {
     public static final String USERNAME = "Username";
     public static final String EMAIL = "EmailId";
     public static final String NEWUSER = "newUser";
+    public static final String DRIVE_ID = "DRIVE_ID";
+    public static final String  SHARED_PREF_NAME = "AccountDetails";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        final SharedPreferences sharedPreferences = getSharedPreferences("AccountDetails", Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         String existingUsername = sharedPreferences.getString(USERNAME, "");
         if (existingUsername.equals("")) {
 
@@ -31,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
                     String email = ((EditText) findViewById(R.id.email_text)).getText().toString();
 
                     if (username.equals("") || email.equals("")) {
-                        Toast.makeText(getApplication(), "Invalid Username or Email", Toast.LENGTH_LONG).show();
+                        HomeActivity.showMessage(getApplication(), "Invalid Username or Email");
                     } else {
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString(USERNAME, username);

@@ -37,6 +37,7 @@ public class CreateTransfer extends Fragment {
     private Cursor mopCursor;
     private Cursor transferCursor;
     boolean firstTime = true;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class CreateTransfer extends Fragment {
         descriptionText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent keyEvent) {
-                if(keyCode == 66 && keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER){
+                if (keyCode == 66 && keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 }
                 return false;
@@ -71,7 +72,7 @@ public class CreateTransfer extends Fragment {
         ((Spinner) fromModeSpinner).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if(!firstTime){
+                if (!firstTime) {
                     toModeSpinner.performClick();
                 } else {
                     firstTime = false;
@@ -87,7 +88,7 @@ public class CreateTransfer extends Fragment {
         mDb.close();
 
         // Date Picker
-        ((EditText)dateText).setInputType(InputType.TYPE_NULL);
+        ((EditText) dateText).setInputType(InputType.TYPE_NULL);
         dateText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -106,7 +107,7 @@ public class CreateTransfer extends Fragment {
                     mDatePicker.setTitle("Select date");
                     mDatePicker.show();
                     amountText.requestFocus();
-                    imm.showSoftInput(amountText,InputMethodManager.SHOW_IMPLICIT);
+                    imm.showSoftInput(amountText, InputMethodManager.SHOW_IMPLICIT);
                 }
             }
         });
@@ -115,7 +116,7 @@ public class CreateTransfer extends Fragment {
         amountText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent keyEvent) {
-                if(keyCode == 66 && keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER){
+                if (keyCode == 66 && keyEvent.getAction() == KeyEvent.ACTION_UP && keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     fromModeSpinner.performClick();
                 }
@@ -136,42 +137,58 @@ public class CreateTransfer extends Fragment {
         return view;
     }
 
-    private void saveTransfer(View view){
+    private void saveTransfer(View view) {
         String description = ((EditText) view.findViewById(R.id.description_text)).getText().toString();
         String date = ((EditText) view.findViewById(R.id.date_text)).getText().toString();
         String amount = ((EditText) view.findViewById(R.id.amount_text)).getText().toString();
         String from_mode = ((TextView) ((Spinner) view.findViewById(R.id.from_mode_spinner)).getSelectedView()).getText().toString();
         String to_mode = ((TextView) ((Spinner) view.findViewById(R.id.to_mode_spinner)).getSelectedView()).getText().toString();
-        SQLiteDatabase mDb = dbHelper.getWritableDatabase();
-        mDb.execSQL("insert into " + TransferTable.TABLE_NAME + " (" +
-                        TransferTable.COLUMN_DATE + "," +
-                        TransferTable.COLUMN_AMOUNT + "," +
-                        TransferTable.COLUMN_DESCRIPTION + "," +
-                        TransferTable.COLUMN_FROM_MODE + "," +
-                        TransferTable.COLUMN_TO_MODE +
-                        ") " + " values (?, ?, ?, ?, ?);",
-                new String[]{date, amount, description, from_mode, to_mode});
-        transferCursor = mDb.rawQuery("SELECT _id from " + TransferTable.TABLE_NAME + " order by _id DESC limit 1;", null);
-        if (transferCursor.moveToFirst()) {
-            Calendar calendar = Calendar.getInstance();
-            String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
-                    String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+        try {
+            if (date.equals("")) {
+                HomeActivity.showMessage(getActivity(), "Date field cannot be empty");
+            } else if (amount.equals("") || Float.valueOf(amount) == 0) {
+                HomeActivity.showMessage(getActivity(), "Transfer Amount invalid");
+            } else if (description.equals("")) {
+                HomeActivity.showMessage(getActivity(), "Description field cannot be empty");
+            } else if (from_mode.equals("") || to_mode.equals("")) {
+                HomeActivity.showMessage(getActivity(), "Create reserves prior to creating transfers");
+            } else if (from_mode.equals(to_mode)) {
+                HomeActivity.showMessage(getActivity(), "Cannot tranfer to same reserve");
+            } else {
+                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                mDb.execSQL("insert into " + TransferTable.TABLE_NAME + " (" +
+                                TransferTable.COLUMN_DATE + "," +
+                                TransferTable.COLUMN_AMOUNT + "," +
+                                TransferTable.COLUMN_DESCRIPTION + "," +
+                                TransferTable.COLUMN_FROM_MODE + "," +
+                                TransferTable.COLUMN_TO_MODE +
+                                ") " + " values (?, ?, ?, ?, ?);",
+                        new String[]{date, amount, description, from_mode, to_mode});
+                transferCursor = mDb.rawQuery("SELECT _id from " + TransferTable.TABLE_NAME + " order by _id DESC limit 1;", null);
+                if (transferCursor.moveToFirst()) {
+                    Calendar calendar = Calendar.getInstance();
+                    String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
+                            String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
 
-            String id = transferCursor.getString(0);
-            mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
-                            LogTable.COLUMN_TITLE + "," +
-                            LogTable.COLUMN_DESCRIPTION_MAIN + "," +
-                            LogTable.COLUMN_DESCRIPTION_SUB + "," +
-                            LogTable.COLUMN_AMOUNT + "," +
-                            LogTable.COLUMN_HIDDEN_ID + "," +
-                            LogTable.COLUMN_LOG_DATE + "," +
-                            LogTable.COLUMN_EVENT_DATE + "," +
-                            LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
-                    new String[]{from_mode + " -> " + to_mode, description, "Transfer Created", amount, id, currentDate, date,
-                            TransferTable.TABLE_NAME});
+                    String id = transferCursor.getString(0);
+                    mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
+                                    LogTable.COLUMN_TITLE + "," +
+                                    LogTable.COLUMN_DESCRIPTION_MAIN + "," +
+                                    LogTable.COLUMN_DESCRIPTION_SUB + "," +
+                                    LogTable.COLUMN_AMOUNT + "," +
+                                    LogTable.COLUMN_HIDDEN_ID + "," +
+                                    LogTable.COLUMN_LOG_DATE + "," +
+                                    LogTable.COLUMN_EVENT_DATE + "," +
+                                    LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
+                            new String[]{from_mode + " -> " + to_mode, description, "Transfer Created", amount, id, currentDate, date,
+                                    TransferTable.TABLE_NAME});
+                }
+                mDb.close();
+                mDisplay.displayFragment(HomeActivity.SEE_LOG);
+            }
+        } catch (NumberFormatException e) {
+            HomeActivity.showMessage(getActivity(), "Transfer Amount invalid");
         }
-        mDb.close();
-        mDisplay.displayFragment(HomeActivity.SEE_LOG);
     }
 
     @Override

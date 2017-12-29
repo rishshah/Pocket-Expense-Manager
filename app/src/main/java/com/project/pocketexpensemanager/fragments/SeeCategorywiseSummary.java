@@ -74,6 +74,7 @@ public class SeeCategorywiseSummary extends Fragment {
             }
         }
         ((TextView) view.findViewById(R.id.expense_total_text)).setText(String.valueOf(amt));
+        mDb.close();
 
         //EditMonthYearDialog
         view.findViewById(R.id.fab_settings).setOnClickListener(new View.OnClickListener() {
@@ -172,10 +173,19 @@ public class SeeCategorywiseSummary extends Fragment {
         ((EditText) dialogView.findViewById(R.id.year_text)).setText(selectedYear);
 
         dialogBuilder.setTitle("Select Month and Year");
-        dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+        dialogBuilder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String newYear = ((EditText) dialogView.findViewById(R.id.year_text)).getText().toString();
                 String newMonth = ((TextView) ((Spinner) dialogView.findViewById(R.id.month_spinner)).getSelectedView()).getText().toString();
+                try {
+                    if (Integer.valueOf(newYear) == 0) {
+                        HomeActivity.showMessage(getActivity(), "Enter valid year");
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    HomeActivity.showMessage(getActivity(), "Enter valid year");
+                    return;
+                }
                 mDisplay.displayLinkedFragment(HomeActivity.SEE_CATEGORYWISE_SUMMARY, null, new String[]{newMonth, newYear});
             }
         });
@@ -195,7 +205,7 @@ public class SeeCategorywiseSummary extends Fragment {
             mDisplay = (Display) context;
             dbHelper = DatabaseHelper.getInstance(getActivity());
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnCreatePostListener");
+            throw new ClassCastException(context.toString());
         }
     }
 

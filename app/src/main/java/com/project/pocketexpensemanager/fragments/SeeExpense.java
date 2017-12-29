@@ -61,6 +61,7 @@ public class SeeExpense extends Fragment {
         transactionSca.setDropDownViewResource(R.layout.payment_detail_list_item);
         ListView expense_list = (ListView) view.findViewById(R.id.mop_list);
         expense_list.setAdapter(transactionSca);
+        mDb.close();
 
         view.findViewById(R.id.fab_edit_header).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,9 +154,17 @@ public class SeeExpense extends Fragment {
                 String newDate = ((EditText) dialogView.findViewById(R.id.date_text)).getText().toString();
                 String newCategory = ((TextView) ((Spinner) dialogView.findViewById(R.id.category_spinner)).getSelectedView()).getText().toString();
 
-                ((TextView) view.findViewById(R.id.date)).setText(newDate);
-                ((TextView) view.findViewById(R.id.category)).setText(newCategory);
-                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(newDescription);
+                if (newDate.equals("")) {
+                    HomeActivity.showMessage(getActivity(), "Date field cannot be empty");
+                } else if (newCategory.equals("")) {
+                    HomeActivity.showMessage(getActivity(), "No categories chosen. Create categories first");
+                } else if (newDescription.equals("")) {
+                    HomeActivity.showMessage(getActivity(), "Description field cannot be empty");
+                } else {
+                    ((TextView) view.findViewById(R.id.date)).setText(newDate);
+                    ((TextView) view.findViewById(R.id.category)).setText(newCategory);
+                    ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(newDescription);
+                }
                 dialog.dismiss();
             }
         });
@@ -175,6 +184,27 @@ public class SeeExpense extends Fragment {
             String newDescription = ((AppCompatActivity) getActivity()).getSupportActionBar().getTitle().toString();
             String newDate = ((TextView) view.findViewById(R.id.date)).getText().toString();
             String newCategory = ((TextView) view.findViewById(R.id.category)).getText().toString();
+            boolean isValueZero = true;
+            for (int i = 0; i < reserveCursor.getCount(); i++) {
+                View child = ((ListView) view.findViewById(R.id.mop_list)).getChildAt(i);
+                String amount = ((EditText) child.findViewById(R.id.mop_amount)).getText().toString();
+                try {
+                    if (amount.equals("")) {
+                        amount = "0";
+                    }
+                    if (Float.valueOf(amount) != 0) {
+                        isValueZero = false;
+                        break;
+                    }
+                } catch (NumberFormatException e) {
+                    HomeActivity.showMessage(getActivity(), "Enter valid payment");
+                    return;
+                }
+            }
+            if(isValueZero){
+                HomeActivity.showMessage(getActivity(), "Enter non zero payment");
+                return;
+            }
             mDb.execSQL("update " + ExpenseTable.TABLE_NAME + " set " +
                             ExpenseTable.COLUMN_CATEGORY + " = ?, " +
                             ExpenseTable.COLUMN_DATE + " = ?, " +
@@ -260,7 +290,7 @@ public class SeeExpense extends Fragment {
             mDisplay = (Display) context;
             dbHelper = DatabaseHelper.getInstance(getActivity());
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnCreatePostListener");
+            throw new ClassCastException(context.toString());
         }
     }
 

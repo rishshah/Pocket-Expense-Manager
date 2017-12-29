@@ -14,7 +14,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,17 +52,23 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.project.pocketexpensemanager.LoginActivity.DRIVE_ID;
+import static com.project.pocketexpensemanager.LoginActivity.SHARED_PREF_NAME;
+
 
 public class HomeActivity extends DriveBase implements NavigationView.OnNavigationItemSelectedListener, Display {
     public static final int CREATE_EXPENSE = 1;
     public static final int CREATE_TRANSFER = 2;
-    public static final int SEE_LOG = 5;
-    public static final int SEE_CATEGORY = 4;
-    public static final int SEE_RESERVE = 6;
-    public static final int SEE_CATEGORYWISE_SUMMARY = 3;
-    public static final int SEE_DETAILED_SUMMARY = 9;
-    public static final int SEE_SETTINGS = 8;
-    public static final int VIEW_PARTICULAR_EXPENSE = 7;
+    public static final int SEE_CATEGORY = 3;
+    public static final int SEE_RESERVE = 4;
+    public static final int SEE_SETTINGS = 5;
+    public static final int SEE_LOG = 6;
+    public static final int SEE_CATEGORYWISE_SUMMARY = 7;
+    public static final int SEE_DETAILED_SUMMARY = 8;
+    public static final int VIEW_PARTICULAR_EXPENSE = 9;
+
+    public static final String EXPORT = "Export";
+    public static final String IMPORT = "Import";
 
     private SharedPreferences sharedPreferences;
 
@@ -87,7 +92,7 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         toggle.syncState();
 
         NavigationView nav = (NavigationView) findViewById(R.id.nav_view);
-        sharedPreferences = getSharedPreferences("AccountDetails", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         ((TextView) nav.getHeaderView(0).findViewById(R.id.username)).setText(sharedPreferences.getString(LoginActivity.USERNAME, ""));
         ((TextView) nav.getHeaderView(0).findViewById(R.id.email)).setText(sharedPreferences.getString(LoginActivity.EMAIL, ""));
         nav.setNavigationItemSelectedListener(this);
@@ -125,7 +130,6 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
 
             case SEE_SETTINGS:
                 NavigationView nav = (NavigationView) findViewById(R.id.nav_view);
-                final SharedPreferences sharedPreferences = getSharedPreferences("AccountDetails", Context.MODE_PRIVATE);
                 ((TextView) nav.getHeaderView(0).findViewById(R.id.username)).setText(sharedPreferences.getString(LoginActivity.USERNAME, ""));
                 ((TextView) nav.getHeaderView(0).findViewById(R.id.email)).setText(sharedPreferences.getString(LoginActivity.EMAIL, ""));
 
@@ -247,24 +251,27 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         try {
             return Constants.OUTPUT_FORMAT.format(Constants.INPUT_FORMAT.parse(c));
         } catch (ParseException e) {
-            Log.e("ERROR ", e.getMessage());
             return null;
         }
     }
 
     @Override
     public void onDriveClientReady(String action) {
-        String driveIdString = sharedPreferences.getString("DRIVE_ID", "");
-        if (action.equals("EXPORT")) {
+        String driveIdString = sharedPreferences.getString(DRIVE_ID, "");
+        if (action.equals(EXPORT)) {
             if (driveIdString.equals("")) {
                 updateBackup(driveIdString);
             } else {
                 createBackup();
             }
-        } else if (action.equals("IMPORT")) {
+        } else if (action.equals(IMPORT)) {
             DriveId id = DriveId.decodeFromString(driveIdString);
             retrieveContents(id.asDriveFile());
         }
+    }
+
+    public static void showMessage(Context c, String s) {
+        Toast.makeText(c, s, Toast.LENGTH_SHORT).show();
     }
 
     private void createBackup() {
@@ -277,8 +284,8 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
                 DriveContents contents = createContentsTask.getResult();
                 writeContents(contents);
                 MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                        .setTitle("PocketExpenseManger.db")
-                        .setMimeType("application/x-sqlite3")
+                        .setTitle(DatabaseHelper.DATABASE_NAME)
+                        .setMimeType(DatabaseHelper.MIME_TYPE)
                         .setStarred(true)
                         .build();
                 return getDriveResourceClient().createFile(parent, changeSet, contents);
@@ -287,19 +294,19 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
             @Override
             public void onSuccess(DriveFile driveFile) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("DRIVE_ID", driveFile.getDriveId().encodeToString());
+                editor.putString(DRIVE_ID, driveFile.getDriveId().encodeToString());
                 editor.apply();
-                showMessage("BackUp Done");
+                showMessage(getApplication(), "BackUp Done");
             }
         }).addOnFailureListener(this, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                showMessage("Failed to create backup file. Retry later");
+                showMessage(getApplication(), "Failed to create backup file. Retry later");
             }
         });
     }
 
-    private void updateBackup(String driveIdString){
+    private void updateBackup(String driveIdString) {
         Task<DriveContents> openTask = getDriveResourceClient().openFile(DriveId.decodeFromString(driveIdString).asDriveFile(), DriveFile.MODE_READ_WRITE);
         openTask.continueWithTask(new Continuation<DriveContents, Task<Void>>() {
             @Override
@@ -317,12 +324,12 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         }).addOnSuccessListener(this, new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                showMessage("BackUp Updated");
+                showMessage(getApplication(), "BackUp Updated");
             }
         }).addOnFailureListener(this, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                showMessage("Failed to create backup file. Retry later");
+                showMessage(getApplication(), "Failed to create backup file. Retry later");
             }
         });
 
@@ -336,20 +343,16 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
             FileInputStream fis = new FileInputStream(dbFile);
             ParcelFileDescriptor pfd = driveContents.getParcelFileDescriptor();
             OutputStream output = new FileOutputStream(pfd.getFileDescriptor());
-            // Transfer bytes from the input file to the output file
             byte[] buffer = new byte[1024];
             int length;
             while ((length = fis.read(buffer)) > 0) {
                 output.write(buffer, 0, length);
             }
-
-            // Close the streams
             output.flush();
             output.close();
             fis.close();
-
         } catch (IOException e) {
-            showMessage("Unable to backup database. Retry later");
+            showMessage(getApplication(), "Unable to backup database. Retry later");
         }
     }
 
@@ -360,19 +363,15 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
             public Task<Void> then(@NonNull Task<DriveContents> task) throws Exception {
                 DriveContents contents = task.getResult();
                 readContents(contents);
-                showMessage("Import Successful");
+                showMessage(getApplication(), "Import Successful");
                 return getDriveResourceClient().discardContents(contents);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                showMessage("Unable to read contents");
+                showMessage(getApplication(), "Unable to read contents");
             }
         });
-    }
-
-    private void showMessage(String s) {
-        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
     }
 
     private void readContents(DriveContents contents) {
@@ -380,21 +379,16 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
         try {
             InputStream is = contents.getInputStream();
             OutputStream output = new FileOutputStream(outFileName);
-
-            // Transfer bytes from the input file to the output file
             byte[] buffer = new byte[1024];
             int length;
             while ((length = is.read(buffer)) > 0) {
                 output.write(buffer, 0, length);
             }
-
-            // Close the streams
             output.flush();
             output.close();
             is.close();
-
         } catch (Exception e) {
-            showMessage("Unable to import database. Retry later");
+            showMessage(getApplication(), "Unable to import database. Retry later");
             e.printStackTrace();
         }
     }

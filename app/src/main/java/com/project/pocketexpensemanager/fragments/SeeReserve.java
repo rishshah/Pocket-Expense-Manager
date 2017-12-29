@@ -90,23 +90,35 @@ public class SeeReserve extends Fragment {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String reserve = ((EditText) dialogView.findViewById(R.id.reserve_text)).getText().toString();
                 String startAmount = ((EditText) dialogView.findViewById(R.id.year_text)).getText().toString();
-                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
-                reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
-                Log.e("AMT", reserve + " ; " + startAmount);
-                if (reserveCursor != null && (reserveCursor.getCount() == 0 || reserveCursor.moveToFirst() && reserveCursor.getString(1).equals(current_reserve))) {
-                    mDb.execSQL("update " + ReserveTable.TABLE_NAME + " set " +
-                                    ReserveTable.COLUMN_TYPE + " = ?, " +
-                                    ReserveTable.COLUMN_START_AMT + " = ? where " + ReserveTable.COLUMN_TYPE + " = ? ;",
-                            new String[]{reserve, startAmount, current_reserve});
-                    Log.e("AMT", reserve + " ; " + startAmount);
+                try {
+                    if (reserve.equals("")) {
+                        HomeActivity.showMessage(getActivity(), "Reserve cannot be empty");
+                    } else if (Float.valueOf(startAmount) < 0) {
+                        HomeActivity.showMessage(getActivity(), "Invalid start amount");
+                    } else {
+                        SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                        reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
+                        Log.e("AMT", reserve + " ; " + startAmount);
+                        if (reserveCursor != null && (reserveCursor.getCount() == 0 || reserveCursor.moveToFirst() && reserveCursor.getString(1).equals(current_reserve))) {
+                            mDb.execSQL("update " + ReserveTable.TABLE_NAME + " set " +
+                                            ReserveTable.COLUMN_TYPE + " = ?, " +
+                                            ReserveTable.COLUMN_START_AMT + " = ? where " + ReserveTable.COLUMN_TYPE + " = ? ;",
+                                    new String[]{reserve, startAmount, current_reserve});
+                            Log.e("AMT", reserve + " ; " + startAmount);
+                        }
+                        mDb.close();
+                        mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+                    }
+                } catch (NumberFormatException e) {
+                    HomeActivity.showMessage(getActivity(), "Invalid start amount");
                 }
-                mDb.close();
-                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+                dialog.dismiss();
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+                dialog.dismiss();
+
             }
         });
         dialogBuilder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
@@ -140,16 +152,28 @@ public class SeeReserve extends Fragment {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String reserve = ((EditText) dialogView.findViewById(R.id.reserve_text)).getText().toString();
                 String startAmount = ((EditText) dialogView.findViewById(R.id.year_text)).getText().toString();
-                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
-                reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
-                if (reserveCursor != null && reserveCursor.getCount() == 0)
-                    mDb.execSQL("insert into " + ReserveTable.TABLE_NAME + " (" +
-                            ReserveTable.COLUMN_TYPE + ", " +
-                            ReserveTable.COLUMN_START_AMT + ", " +
-                            ReserveTable.COLUMN_ACTIVE +
-                            ") " + " values (?, ?, ?);", new String[]{reserve, startAmount, String.valueOf(Constants.ACTIVATED)});
-                mDb.close();
-                mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+                try {
+                    if (reserve.equals("")) {
+                        HomeActivity.showMessage(getActivity(), "Reserve cannot be empty");
+                    } else if (Float.valueOf(startAmount) < 0) {
+                        HomeActivity.showMessage(getActivity(), "Invalid start amount");
+                    } else {
+                        SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                        reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
+                        if (reserveCursor != null && reserveCursor.getCount() == 0)
+                            mDb.execSQL("insert into " + ReserveTable.TABLE_NAME + " (" +
+                                    ReserveTable.COLUMN_TYPE + ", " +
+                                    ReserveTable.COLUMN_START_AMT + ", " +
+                                    ReserveTable.COLUMN_ACTIVE +
+                                    ") " + " values (?, ?, ?);", new String[]{reserve, startAmount, String.valueOf(Constants.ACTIVATED)});
+                        mDb.close();
+                        mDisplay.displayFragment(HomeActivity.SEE_RESERVE);
+                    }
+
+                } catch (NumberFormatException e) {
+                    HomeActivity.showMessage(getActivity(), "Invalid start amount");
+                }
+                dialog.dismiss();
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -168,7 +192,7 @@ public class SeeReserve extends Fragment {
             mDisplay = (Display) context;
             dbHelper = DatabaseHelper.getInstance(getActivity());
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnCreatePostListener");
+            throw new ClassCastException(context.toString());
         }
     }
 

@@ -21,6 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static DatabaseHelper sInstance;
 
     public static final String DATABASE_NAME = "pem.db";
+    public static final String MIME_TYPE = "application/x-sqlite3";
     private static final int DATABASE_VERSION = 1;
     //context
     private Context mContext;

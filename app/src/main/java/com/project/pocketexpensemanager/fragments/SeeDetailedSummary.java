@@ -64,6 +64,8 @@ public class SeeDetailedSummary extends Fragment {
             amt += expenseCursor.getFloat(4);
         }
         ((TextView) view.findViewById(R.id.expense_total_text)).setText(String.valueOf(amt));
+        mDb.close();
+
         //EditMonthYearDialog
         view.findViewById(R.id.fab_settings).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,6 +111,15 @@ public class SeeDetailedSummary extends Fragment {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String newYear = ((EditText) dialogView.findViewById(R.id.year_text)).getText().toString();
                 String newMonth = ((TextView) ((Spinner) dialogView.findViewById(R.id.month_spinner)).getSelectedView()).getText().toString();
+                try {
+                    if (Integer.valueOf(newYear) == 0) {
+                        HomeActivity.showMessage(getActivity(), "Enter valid year");
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    HomeActivity.showMessage(getActivity(), "Enter valid year");
+                    return;
+                }
                 mDisplay.displayLinkedFragment(HomeActivity.SEE_DETAILED_SUMMARY, null, new String[]{newMonth, newYear});
             }
         });
@@ -128,7 +139,7 @@ public class SeeDetailedSummary extends Fragment {
             mDisplay = (Display) context;
             dbHelper = DatabaseHelper.getInstance(getActivity());
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnCreatePostListener");
+            throw new ClassCastException(context.toString());
         }
     }
 

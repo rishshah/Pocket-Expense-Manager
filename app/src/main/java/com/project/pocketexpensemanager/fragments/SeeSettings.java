@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -21,13 +20,15 @@ import android.widget.TextView;
 import com.project.pocketexpensemanager.HomeActivity;
 import com.project.pocketexpensemanager.LoginActivity;
 import com.project.pocketexpensemanager.R;
-import com.project.pocketexpensemanager.database.DatabaseHelper;
 import com.project.pocketexpensemanager.fragments.communication.Display;
+
+import static com.project.pocketexpensemanager.HomeActivity.EXPORT;
+import static com.project.pocketexpensemanager.HomeActivity.IMPORT;
+import static com.project.pocketexpensemanager.LoginActivity.SHARED_PREF_NAME;
 
 public class SeeSettings extends Fragment {
 
     private Display mDisplay;
-    private DatabaseHelper dbHelper;
     private static final String BACKUP = "Backup Settings";
 
     @Nullable
@@ -38,7 +39,7 @@ public class SeeSettings extends Fragment {
         View emailView = view.findViewById(R.id.field_email);
         View backupView = view.findViewById(R.id.field_backup);
 
-        final SharedPreferences sharedPreferences = getActivity().getSharedPreferences("AccountDetails", Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         fillViewDetails(usernameView, LoginActivity.USERNAME, sharedPreferences.getString(LoginActivity.USERNAME, ""));
         fillViewDetails(emailView, LoginActivity.EMAIL, sharedPreferences.getString(LoginActivity.EMAIL, ""));
         fillViewDetails(backupView, BACKUP, "");
@@ -76,11 +77,10 @@ public class SeeSettings extends Fragment {
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.item_backup:
-                Log.e("SETTINGS", "Strating export...");
-                ((HomeActivity)getActivity()).signIn("EXPORT");
+                ((HomeActivity) getActivity()).signIn(EXPORT);
                 return true;
             case R.id.item_import:
-                ((HomeActivity)getActivity()).signIn("IMPORT");
+                ((HomeActivity) getActivity()).signIn(IMPORT);
                 return true;
             default:
                 return false;
@@ -106,7 +106,6 @@ public class SeeSettings extends Fragment {
         ((ImageView) view.findViewById(R.id.icon)).setImageResource(img);
     }
 
-
     private void showEditDialogBox(final String type) {
         final SharedPreferences sharedPreferences = getActivity().getSharedPreferences("AccountDetails", Context.MODE_PRIVATE);
         String existing = sharedPreferences.getString(type, "");
@@ -123,10 +122,14 @@ public class SeeSettings extends Fragment {
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String edited = ((EditText) dialogView.findViewById(R.id.edit_text)).getText().toString();
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(type, edited);
-                editor.apply();
-                mDisplay.displayFragment(HomeActivity.SEE_SETTINGS);
+                if (edited.equals("")) {
+                    HomeActivity.showMessage(getActivity(), type + " cannot be empty");
+                } else {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(type, edited);
+                    editor.apply();
+                    mDisplay.displayFragment(HomeActivity.SEE_SETTINGS);
+                }
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -143,9 +146,8 @@ public class SeeSettings extends Fragment {
         super.onAttach(context);
         try {
             mDisplay = (Display) context;
-            dbHelper = DatabaseHelper.getInstance(getActivity());
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnCreatePostListener");
+            throw new ClassCastException(context.toString());
         }
     }
 }

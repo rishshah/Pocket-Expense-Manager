@@ -79,20 +79,27 @@ public class SeeCategory extends Fragment {
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String category = ((EditText) dialogView.findViewById(R.id.edit_text)).getText().toString();
-                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
-                categoryCursor = mDb.rawQuery("select * from " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category});
-                if (categoryCursor != null && categoryCursor.getCount() == 0)
-                    mDb.execSQL("update " + CategoryTable.TABLE_NAME + " set " +
-                            CategoryTable.COLUMN_TYPE +
-                            " = ? where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category, current_category});
+                if(category.equals("")){
+                    HomeActivity.showMessage(getActivity(), "Category cannot be empty");
+                } else {
+                    SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                    categoryCursor = mDb.rawQuery("select * from " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category});
+                    if (categoryCursor != null && categoryCursor.getCount() == 0) {
+                        mDb.execSQL("update " + CategoryTable.TABLE_NAME + " set " +
+                                CategoryTable.COLUMN_TYPE +
+                                " = ? where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category, current_category});
+                    } else {
+                        HomeActivity.showMessage(getActivity(), "Category already exists");
+                    }
+                    mDb.close();
+                    mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
+                }
 
-                mDb.close();
-                mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
+                dialog.dismiss();
             }
         });
         dialogBuilder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
@@ -124,20 +131,28 @@ public class SeeCategory extends Fragment {
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String category = ((EditText) dialogView.findViewById(R.id.edit_text)).getText().toString();
-                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
-                categoryCursor = mDb.rawQuery("select * from " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category});
-                if (categoryCursor != null && categoryCursor.getCount() == 0)
-                    mDb.execSQL("insert into " + CategoryTable.TABLE_NAME + " (" +
-                            CategoryTable.COLUMN_TYPE + ", " +
-                            CategoryTable.COLUMN_ACTIVE +
-                            ") " + " values (?,?);", new String[]{category, String.valueOf(Constants.ACTIVATED)});
-                mDb.close();
-                mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
+                if(category.equals("")){
+                    HomeActivity.showMessage(getActivity(), "Category cannot be empty");
+                } else {
+                    SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                    categoryCursor = mDb.rawQuery("select * from " + CategoryTable.TABLE_NAME + " where " + CategoryTable.COLUMN_TYPE + " = ? ;", new String[]{category});
+                    if (categoryCursor != null && categoryCursor.getCount() == 0) {
+                        mDb.execSQL("insert into " + CategoryTable.TABLE_NAME + " (" +
+                                CategoryTable.COLUMN_TYPE + ", " +
+                                CategoryTable.COLUMN_ACTIVE +
+                                ") " + " values (?,?);", new String[]{category, String.valueOf(Constants.ACTIVATED)});
+                    } else {
+                        HomeActivity.showMessage(getActivity(), "Category already exists");
+                    }
+                    mDb.close();
+                    mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
+                }
+
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                mDisplay.displayFragment(HomeActivity.SEE_CATEGORY);
+                dialog.dismiss();
             }
         });
         AlertDialog b = dialogBuilder.create();
@@ -151,7 +166,7 @@ public class SeeCategory extends Fragment {
             dbHelper = DatabaseHelper.getInstance(getActivity());
             mDisplay = (Display) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnCreatePostListener");
+            throw new ClassCastException(context.toString());
         }
     }
 

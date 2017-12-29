@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class DriveBase extends AppCompatActivity {
-    protected static final int REQUEST_CODE_SIGN_IN = 0;
+    private static final int REQUEST_CODE_SIGN_IN = 0;
     private DriveResourceClient mDriveResourceClient;
 
     public DriveResourceClient getDriveResourceClient() {

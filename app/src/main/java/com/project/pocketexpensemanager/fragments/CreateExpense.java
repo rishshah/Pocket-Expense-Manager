@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.app.Fragment;
 import android.text.InputType;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -122,50 +121,60 @@ public class CreateExpense extends Fragment {
         String date = ((EditText) view.findViewById(R.id.date_text)).getText().toString();
         String category = ((TextView) ((Spinner) view.findViewById(R.id.category_spinner)).getSelectedView()).getText().toString();
         String description = ((EditText) view.findViewById(R.id.description_text)).getText().toString();
+        String paymentOption = ((TextView) view.findViewById(R.id.amount_text)).getText().toString();
+        if (date.equals("")) {
+            HomeActivity.showMessage(getActivity(), "Date field cannot be empty");
+        } else if (category.equals("")) {
+            HomeActivity.showMessage(getActivity(), "No categories chosen. Create categories first");
+        } else if (description.equals("")) {
+            HomeActivity.showMessage(getActivity(), "Description field cannot be empty");
+        } else if (paymentOption.equals(getString(R.string.method_of_payment))) {
+            HomeActivity.showMessage(getActivity(), "Select a payment option");
+        } else {
+            SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+            mDb.execSQL("insert into " + ExpenseTable.TABLE_NAME + " (" +
+                            ExpenseTable.COLUMN_DATE + "," +
+                            ExpenseTable.COLUMN_CATEGORY + "," +
+                            ExpenseTable.COLUMN_DESCRIPTION +
+                            ") " + " values (?, ?, ?);",
+                    new String[]{date, category, description});
 
-        SQLiteDatabase mDb = dbHelper.getWritableDatabase();
-        mDb.execSQL("insert into " + ExpenseTable.TABLE_NAME + " (" +
-                        ExpenseTable.COLUMN_DATE + "," +
-                        ExpenseTable.COLUMN_CATEGORY + "," +
-                        ExpenseTable.COLUMN_DESCRIPTION +
-                        ") " + " values (?, ?, ?);",
-                new String[]{date, category, description});
+            expenseCursor = mDb.rawQuery("SELECT _id from " + ExpenseTable.TABLE_NAME + " order by _id DESC limit 1;", null);
+            if (expenseCursor.moveToFirst()) {
+                String[] mop = paymentOption.split(", ");
+                String id = expenseCursor.getString(0);
+                float amt = 0f;
+                for (String payment : mop) {
+                    String reserve = payment.split("-")[0];
+                    String amount = payment.split("-")[1];
+                    amt += Float.valueOf(amount);
+                    mDb.execSQL("insert into " + ExpenseAmountTable.TABLE_NAME + " (" +
+                                    ExpenseAmountTable.COLUMN_EXPENSE_ID + "," +
+                                    ExpenseAmountTable.COLUMN_MOP + "," +
+                                    ExpenseAmountTable.COLUMN_AMOUNT +
+                                    ") " + " values (?, ?, ?);",
+                            new String[]{id, reserve, amount});
+                }
 
-        expenseCursor = mDb.rawQuery("SELECT _id from " + ExpenseTable.TABLE_NAME + " order by _id DESC limit 1;", null);
-        if (expenseCursor.moveToFirst()) {
-            String[] mop = ((TextView) view.findViewById(R.id.amount_text)).getText().toString().split(", ");
-            String id = expenseCursor.getString(0);
-            float amt = 0f;
-            for (String payment : mop) {
-                String reserve = payment.split("-")[0];
-                String amount = payment.split("-")[1];
-                amt += Float.valueOf(amount);
-                mDb.execSQL("insert into " + ExpenseAmountTable.TABLE_NAME + " (" +
-                                ExpenseAmountTable.COLUMN_EXPENSE_ID + "," +
-                                ExpenseAmountTable.COLUMN_MOP + "," +
-                                ExpenseAmountTable.COLUMN_AMOUNT +
-                                ") " + " values (?, ?, ?);",
-                        new String[]{id, reserve, amount});
+                Calendar calendar = Calendar.getInstance();
+                String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
+                        String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+                mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
+                                LogTable.COLUMN_TITLE + "," +
+                                LogTable.COLUMN_DESCRIPTION_MAIN + "," +
+                                LogTable.COLUMN_DESCRIPTION_SUB + "," +
+                                LogTable.COLUMN_AMOUNT + "," +
+                                LogTable.COLUMN_HIDDEN_ID + "," +
+                                LogTable.COLUMN_LOG_DATE + "," +
+                                LogTable.COLUMN_EVENT_DATE + "," +
+                                LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
+                        new String[]{category, description, "Expense Created", String.valueOf(amt), id, currentDate, date,
+                                ExpenseTable.TABLE_NAME});
             }
 
-            Calendar calendar = Calendar.getInstance();
-            String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
-                    String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
-            mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
-                            LogTable.COLUMN_TITLE + "," +
-                            LogTable.COLUMN_DESCRIPTION_MAIN + "," +
-                            LogTable.COLUMN_DESCRIPTION_SUB + "," +
-                            LogTable.COLUMN_AMOUNT + "," +
-                            LogTable.COLUMN_HIDDEN_ID + "," +
-                            LogTable.COLUMN_LOG_DATE + "," +
-                            LogTable.COLUMN_EVENT_DATE + "," +
-                            LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
-                    new String[]{category, description, "Expense Created", String.valueOf(amt), id, currentDate, date,
-                            ExpenseTable.TABLE_NAME});
+            mDb.close();
+            mDisplay.displayFragment(HomeActivity.SEE_LOG);
         }
-
-        mDb.close();
-        mDisplay.displayFragment(HomeActivity.SEE_LOG);
     }
 
     private void addDetailedPayment(final View view) {
@@ -194,14 +203,13 @@ public class CreateExpense extends Fragment {
         builderSingle.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.e("CANCEL", String.valueOf(which));
                 dialog.dismiss();
             }
         });
-        builderSingle.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+        builderSingle.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                Log.e("SAVE", String.valueOf(whichButton));
                 String finalString = "";
+                boolean isValueZero = true;
                 for (int i = 0; i < mopCursor.getCount(); i++) {
                     View child = paymentList.getChildAt(i);
                     String reserve = ((TextView) child.findViewById(R.id.mop_caption)).getText().toString();
@@ -209,11 +217,23 @@ public class CreateExpense extends Fragment {
                     if (amount.equals("")) {
                         amount = "0";
                     }
+                    try{
+                        if(Float.valueOf(amount) != 0){
+                            isValueZero = false;
+                        }
+                    } catch (NumberFormatException e){
+                        HomeActivity.showMessage(getActivity(),"Enter valid payment");
+                        return;
+                    }
                     finalString += reserve + "-" + amount + ", ";
                 }
                 finalString = finalString.substring(0, finalString.length() - 2);
-                ((TextView) view.findViewById(R.id.amount_text)).setText(finalString);
-                dialog.dismiss();
+                if(isValueZero){
+                    HomeActivity.showMessage(getActivity(),"Select atleast one reserve for payment");
+                } else{
+                    ((TextView) view.findViewById(R.id.amount_text)).setText(finalString);
+                    dialog.dismiss();
+                }
             }
         });
         AlertDialog b = builderSingle.create();
@@ -227,7 +247,7 @@ public class CreateExpense extends Fragment {
             mDisplay = (Display) context;
             dbHelper = DatabaseHelper.getInstance(getActivity());
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnCreatePostListener");
+            throw new ClassCastException(context.toString());
         }
     }
 

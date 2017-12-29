@@ -217,32 +217,50 @@ public class SeeLog extends Fragment {
                 String newDate = ((EditText) dialogView.findViewById(R.id.date_text)).getText().toString();
                 String newFromMode = ((TextView) ((Spinner) dialogView.findViewById(R.id.from_mode_spinner)).getSelectedView()).getText().toString();
                 String newToMode = ((TextView) ((Spinner) dialogView.findViewById(R.id.to_mode_spinner)).getSelectedView()).getText().toString();
-                SQLiteDatabase mDb = dbHelper.getWritableDatabase();
-                mDb.execSQL("update " + TransferTable.TABLE_NAME + " set " +
-                                TransferTable.COLUMN_DATE + " = ?," +
-                                TransferTable.COLUMN_AMOUNT + " = ?," +
-                                TransferTable.COLUMN_DESCRIPTION + " = ?," +
-                                TransferTable.COLUMN_FROM_MODE + " = ?," +
-                                TransferTable.COLUMN_TO_MODE + " = ? where _id = ?",
-                        new String[]{newDate, newAmount, newDescription, newFromMode, newToMode, transferCursor.getString(0)});
+                try {
 
-                Calendar calendar = Calendar.getInstance();
-                String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
-                        String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+                    if (newDate.equals("")) {
+                        HomeActivity.showMessage(getActivity(), "Date field cannot be empty");
+                    } else if (newAmount.equals("") || Float.valueOf(newAmount) == 0) {
+                        HomeActivity.showMessage(getActivity(), "Transfer Amount invalid");
+                    } else if (newDescription.equals("")) {
+                        HomeActivity.showMessage(getActivity(), "Description field cannot be empty");
+                    } else if (newFromMode.equals("") || newToMode.equals("")) {
+                        HomeActivity.showMessage(getActivity(), "Create reserves prior to creating transfers");
+                    } else if (newFromMode.equals(newToMode)) {
+                        HomeActivity.showMessage(getActivity(), "Cannot tranfer to same reserve");
+                    } else {
+                        SQLiteDatabase mDb = dbHelper.getWritableDatabase();
+                        mDb.execSQL("update " + TransferTable.TABLE_NAME + " set " +
+                                        TransferTable.COLUMN_DATE + " = ?," +
+                                        TransferTable.COLUMN_AMOUNT + " = ?," +
+                                        TransferTable.COLUMN_DESCRIPTION + " = ?," +
+                                        TransferTable.COLUMN_FROM_MODE + " = ?," +
+                                        TransferTable.COLUMN_TO_MODE + " = ? where _id = ?",
+                                new String[]{newDate, newAmount, newDescription, newFromMode, newToMode, transferCursor.getString(0)});
 
-                String id = transferCursor.getString(0);
-                mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
-                                LogTable.COLUMN_TITLE + "," +
-                                LogTable.COLUMN_DESCRIPTION_MAIN + "," +
-                                LogTable.COLUMN_DESCRIPTION_SUB + "," +
-                                LogTable.COLUMN_AMOUNT + "," +
-                                LogTable.COLUMN_HIDDEN_ID + "," +
-                                LogTable.COLUMN_LOG_DATE + "," +
-                                LogTable.COLUMN_EVENT_DATE + "," +
-                                LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
-                        new String[]{newFromMode + " -> " + newToMode, newDescription, "Transfer Updated", newAmount, id, currentDate, newDate, TransferTable.TABLE_NAME});
-                mDb.close();
-                mDisplay.displayFragment(HomeActivity.SEE_LOG);
+                        Calendar calendar = Calendar.getInstance();
+                        String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
+                                String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+
+                        String id = transferCursor.getString(0);
+                        mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
+                                        LogTable.COLUMN_TITLE + "," +
+                                        LogTable.COLUMN_DESCRIPTION_MAIN + "," +
+                                        LogTable.COLUMN_DESCRIPTION_SUB + "," +
+                                        LogTable.COLUMN_AMOUNT + "," +
+                                        LogTable.COLUMN_HIDDEN_ID + "," +
+                                        LogTable.COLUMN_LOG_DATE + "," +
+                                        LogTable.COLUMN_EVENT_DATE + "," +
+                                        LogTable.COLUMN_TYPE + ") " + " values (?, ?, ?, ?, ?, ?, ?, ?);",
+                                new String[]{newFromMode + " -> " + newToMode, newDescription, "Transfer Updated", newAmount, id, currentDate, newDate, TransferTable.TABLE_NAME});
+                        mDb.close();
+                        mDisplay.displayFragment(HomeActivity.SEE_LOG);
+                    }
+                } catch (NumberFormatException e) {
+                    HomeActivity.showMessage(getActivity(), "Transfer Amount invalid");
+                }
+                dialog.dismiss();
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -308,7 +326,7 @@ public class SeeLog extends Fragment {
             mDisplay = (Display) context;
             dbHelper = DatabaseHelper.getInstance(getActivity());
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnCreatePostListener");
+            throw new ClassCastException(context.toString());
         }
     }
 
