@@ -15,9 +15,6 @@
 - Summary of comparative expenditures with a pie chart amongst all categories month-wise
 - Linking with google drive for backup
 
-## Todo
-- Input Validation everywhere (YET TO DO)
-
 ## Future Plans
 - Summary year/quarter wise (EASY)
 - List of transfers (EASY)
@@ -33,4 +30,3 @@
 	(ALLOWED - Only the new creations would be affected by deleting reserves and categories)
 - Not allowing expense, transfers that make the balance negative 
 	(ALLOWED - Somepeople just put updates for now creating negative balance and perform them later)
-- Input Validation everywhere (YET TO DO)
