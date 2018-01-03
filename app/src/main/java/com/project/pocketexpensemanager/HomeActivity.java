@@ -259,7 +259,7 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
     public void onDriveClientReady(String action) {
         String driveIdString = sharedPreferences.getString(DRIVE_ID, "");
         if (action.equals(EXPORT)) {
-            if (driveIdString.equals("")) {
+            if (!driveIdString.equals("")) {
                 updateBackup(driveIdString);
             } else {
                 createBackup();
@@ -307,32 +307,38 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
     }
 
     private void updateBackup(String driveIdString) {
-        Task<DriveContents> openTask = getDriveResourceClient().openFile(DriveId.decodeFromString(driveIdString).asDriveFile(), DriveFile.MODE_READ_WRITE);
-        openTask.continueWithTask(new Continuation<DriveContents, Task<Void>>() {
-            @Override
-            public Task<Void> then(@NonNull Task<DriveContents> task) throws Exception {
-                DriveContents driveContents = task.getResult();
-                writeContents(driveContents);
+        try {
+            Task<DriveContents> openTask = getDriveResourceClient().openFile(DriveId.decodeFromString(driveIdString).asDriveFile(), DriveFile.MODE_READ_WRITE);
+            openTask.continueWithTask(new Continuation<DriveContents, Task<Void>>() {
+                @Override
+                public Task<Void> then(@NonNull Task<DriveContents> task) throws Exception {
+                    DriveContents driveContents = task.getResult();
+                    writeContents(driveContents);
 
-                MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                        .setStarred(true)
-                        .setLastViewedByMeDate(new Date())
-                        .build();
+                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                            .setStarred(true)
+                            .setLastViewedByMeDate(new Date())
+                            .build();
 
-                return getDriveResourceClient().commitContents(driveContents, changeSet);
-            }
-        }).addOnSuccessListener(this, new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                showMessage(getApplication(), "BackUp Updated");
-            }
-        }).addOnFailureListener(this, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                showMessage(getApplication(), "Failed to create backup file. Retry later");
-            }
-        });
-
+                    return getDriveResourceClient().commitContents(driveContents, changeSet);
+                }
+            }).addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    showMessage(getApplication(), "BackUp Updated");
+                }
+            }).addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    showMessage(getApplication(), "Failed to create backup file. Retry later");
+                }
+            });
+        } catch (IllegalArgumentException e){
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(DRIVE_ID,"");
+            editor.apply();
+            showMessage(getApplication(), "Please try again ...");
+        }
     }
 
     private void writeContents(DriveContents driveContents) {
