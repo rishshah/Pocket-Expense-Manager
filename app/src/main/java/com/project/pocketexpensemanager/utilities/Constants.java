@@ -22,6 +22,7 @@ public class Constants {
     };
     public static final int ACTIVATED = 0;
     public static final int DEACTIVATED = 1;
+    public static final String SEPARATOR = " : ";
 }
 
 

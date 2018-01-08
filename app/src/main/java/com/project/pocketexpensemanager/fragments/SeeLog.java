@@ -42,6 +42,8 @@ import com.project.pocketexpensemanager.utilities.LogItemAdapter;
 import java.text.ParseException;
 import java.util.Calendar;
 
+import static com.project.pocketexpensemanager.utilities.Constants.SEPARATOR;
+
 public class SeeLog extends Fragment {
 
     private Display mDisplay;
@@ -173,14 +175,14 @@ public class SeeLog extends Fragment {
                     } catch (ParseException e) {
                         Log.e("DATE ERR..", e.getMessage());
                     }
-                    String[] dateParts = date.split(" : ");
+                    String[] dateParts = date.split(SEPARATOR);
                     int mYear = Integer.valueOf(dateParts[2]);
                     int mMonth = Integer.valueOf(dateParts[1]) - 1;
                     int mDay = Integer.valueOf(dateParts[0]);
 
                     DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                         public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                            String date = String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear);
+                            String date = String.valueOf(selectedday) + SEPARATOR + String.valueOf(selectedmonth + 1) + SEPARATOR + String.valueOf(selectedyear);
                             ((EditText) dialogView.findViewById(R.id.date_text)).setText(mDisplay.parseDate(date));
                             amountText.requestFocus();
                         }
@@ -240,8 +242,8 @@ public class SeeLog extends Fragment {
                                 new String[]{newDate, newAmount, newDescription, newFromMode, newToMode, transferCursor.getString(0)});
 
                         Calendar calendar = Calendar.getInstance();
-                        String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
-                                String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+                        String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + SEPARATOR +
+                                String.valueOf(calendar.get(Calendar.MONTH) + 1) + SEPARATOR + String.valueOf(calendar.get(Calendar.YEAR)));
 
                         String id = transferCursor.getString(0);
                         mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
@@ -275,8 +277,8 @@ public class SeeLog extends Fragment {
                         " where _id = ? ;", new String[]{transferCursor.getString(0)});
 
                 Calendar calendar = Calendar.getInstance();
-                String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
-                        String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+                String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + SEPARATOR +
+                        String.valueOf(calendar.get(Calendar.MONTH) + 1) + SEPARATOR + String.valueOf(calendar.get(Calendar.YEAR)));
 
                 //Update Log
                 mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +

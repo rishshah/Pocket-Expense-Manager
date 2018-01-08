@@ -37,6 +37,8 @@ import com.project.pocketexpensemanager.fragments.communication.Display;
 import java.text.ParseException;
 import java.util.Calendar;
 
+import static com.project.pocketexpensemanager.utilities.Constants.SEPARATOR;
+
 public class SeeExpense extends Fragment {
     private Display mDisplay;
     private DatabaseHelper dbHelper;
@@ -124,14 +126,14 @@ public class SeeExpense extends Fragment {
                     } catch (ParseException e) {
                         Log.e("DATE ERR..", e.getMessage());
                     }
-                    String[] dateParts = date.split(" : ");
+                    String[] dateParts = date.split(SEPARATOR);
                     int mYear = Integer.valueOf(dateParts[2]);
                     int mMonth = Integer.valueOf(dateParts[1]) - 1;
                     int mDay = Integer.valueOf(dateParts[0]);
 
                     DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                         public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                            String date = String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear);
+                            String date = String.valueOf(selectedday) + SEPARATOR + String.valueOf(selectedmonth + 1) + SEPARATOR + String.valueOf(selectedyear);
                             ((EditText) dialogView.findViewById(R.id.date_text)).setText(mDisplay.parseDate(date));
                             imm.hideSoftInputFromWindow(dateText.getWindowToken(), 0);
                             descriptionText.requestFocus();
@@ -231,8 +233,8 @@ public class SeeExpense extends Fragment {
                         new String[]{getArguments().getString("_id"), reserve, amount});
             }
             Calendar calendar = Calendar.getInstance();
-            String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
-                    String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+            String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + SEPARATOR +
+                    String.valueOf(calendar.get(Calendar.MONTH) + 1) + SEPARATOR + String.valueOf(calendar.get(Calendar.YEAR)));
             mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
                             LogTable.COLUMN_TITLE + "," +
                             LogTable.COLUMN_DESCRIPTION_MAIN + "," +
@@ -266,8 +268,8 @@ public class SeeExpense extends Fragment {
             mDb.execSQL("delete from " + ExpenseTable.TABLE_NAME + " where _id = ?", new String[]{getArguments().getString("_id")});
 
             Calendar calendar = Calendar.getInstance();
-            String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
-                    String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+            String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + SEPARATOR +
+                    String.valueOf(calendar.get(Calendar.MONTH) + 1) + SEPARATOR + String.valueOf(calendar.get(Calendar.YEAR)));
             mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
                             LogTable.COLUMN_TITLE + "," +
                             LogTable.COLUMN_DESCRIPTION_MAIN + "," +

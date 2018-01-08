@@ -79,7 +79,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/date_text"
         android:layout_marginTop="30dp"
-        android:digits="1234567890."
+        android:digits="1234567890.-"
         android:hint="@string/transfer_amount"
         android:inputType="number"
         android:minWidth="170dp" />

@@ -25,6 +25,7 @@
         android:hint="@string/start_amount"
         android:textColorHint="@color/grey"
         android:textColor="@color/black"
-        android:inputType="numberDecimal" />
+        android:inputType="numberDecimal"
+        android:digits="0123456789.-" />
 
 </RelativeLayout>

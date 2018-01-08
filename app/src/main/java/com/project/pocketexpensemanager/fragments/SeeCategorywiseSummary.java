@@ -57,16 +57,20 @@ public class SeeCategorywiseSummary extends Fragment {
 
         //ExpenseTotal
         SQLiteDatabase mDb = dbHelper.getReadableDatabase();
-        expenseCursor = mDb.rawQuery("select " + ExpenseTable.TABLE_NAME + "._id, " + ExpenseTable.COLUMN_DATE + ", " + ExpenseTable.COLUMN_DESCRIPTION + ", " + ExpenseTable.COLUMN_CATEGORY + ", sum(" + ExpenseAmountTable.COLUMN_AMOUNT + ") as amount from " +
-                        ExpenseTable.TABLE_NAME + ", " + ExpenseAmountTable.TABLE_NAME + " where " +
-                        ExpenseAmountTable.COLUMN_EXPENSE_ID + " = " + ExpenseTable.TABLE_NAME + "._id  and " +
-                        ExpenseTable.COLUMN_DATE + " like ? group by " + ExpenseTable.TABLE_NAME + "._id order by " + ExpenseTable.COLUMN_DATE + " desc;",
+        String query = "select " + ExpenseTable.TABLE_NAME + "._id, " + ExpenseTable.COLUMN_DATE + ", " + ExpenseTable.COLUMN_DESCRIPTION + ", " + ExpenseTable.COLUMN_CATEGORY + ", sum(" + ExpenseAmountTable.COLUMN_AMOUNT + ") as amount from " +
+                ExpenseTable.TABLE_NAME + ", " + ExpenseAmountTable.TABLE_NAME + " where " +
+                ExpenseAmountTable.COLUMN_EXPENSE_ID + " = " + ExpenseTable.TABLE_NAME + "._id  and " +
+                ExpenseTable.COLUMN_DATE + " like ? group by " + ExpenseTable.TABLE_NAME + "._id order by " + ExpenseTable.COLUMN_DATE + " desc;";
+        Log.e("TAG", "onCreateView: " + query );
+        expenseCursor = mDb.rawQuery(query,
                 new String[]{currentMonth.substring(0, 3) + "%" + currentYear});
 
         float amt = 0f;
         categoryMap = new HashMap<>();
         while (expenseCursor.moveToNext()) {
             amt += expenseCursor.getFloat(4);
+            Log.e("TAG", "inForLoop: " + expenseCursor.getFloat(4));
+
             if (!categoryMap.containsKey(expenseCursor.getString(3))) {
                 categoryMap.put(expenseCursor.getString(3), expenseCursor.getFloat(4));
             } else {

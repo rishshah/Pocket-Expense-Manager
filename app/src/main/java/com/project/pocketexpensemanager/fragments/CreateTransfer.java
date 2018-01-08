@@ -31,6 +31,8 @@ import com.project.pocketexpensemanager.fragments.communication.Display;
 
 import java.util.Calendar;
 
+import static com.project.pocketexpensemanager.utilities.Constants.SEPARATOR;
+
 public class CreateTransfer extends Fragment {
     private Display mDisplay;
     private DatabaseHelper dbHelper;
@@ -100,7 +102,7 @@ public class CreateTransfer extends Fragment {
 
                     DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                         public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                            String date = String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear);
+                            String date = String.valueOf(selectedday) + SEPARATOR + String.valueOf(selectedmonth + 1) + SEPARATOR + String.valueOf(selectedyear);
                             ((EditText) view.findViewById(R.id.date_text)).setText(mDisplay.parseDate(date));
                         }
                     }, mYear, mMonth, mDay);
@@ -167,8 +169,8 @@ public class CreateTransfer extends Fragment {
                 transferCursor = mDb.rawQuery("SELECT _id from " + TransferTable.TABLE_NAME + " order by _id DESC limit 1;", null);
                 if (transferCursor.moveToFirst()) {
                     Calendar calendar = Calendar.getInstance();
-                    String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
-                            String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+                    String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + SEPARATOR +
+                            String.valueOf(calendar.get(Calendar.MONTH) + 1) + SEPARATOR + String.valueOf(calendar.get(Calendar.YEAR)));
 
                     String id = transferCursor.getString(0);
                     mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +

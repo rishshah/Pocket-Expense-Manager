@@ -93,9 +93,8 @@ public class SeeReserve extends Fragment {
                 try {
                     if (reserve.equals("")) {
                         HomeActivity.showMessage(getActivity(), "Reserve cannot be empty");
-                    } else if (Float.valueOf(startAmount) < 0) {
-                        HomeActivity.showMessage(getActivity(), "Invalid start amount");
                     } else {
+                        float amt = Float.valueOf(startAmount);
                         SQLiteDatabase mDb = dbHelper.getWritableDatabase();
                         reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
                         Log.e("AMT", reserve + " ; " + startAmount);
@@ -155,9 +154,8 @@ public class SeeReserve extends Fragment {
                 try {
                     if (reserve.equals("")) {
                         HomeActivity.showMessage(getActivity(), "Reserve cannot be empty");
-                    } else if (Float.valueOf(startAmount) < 0) {
-                        HomeActivity.showMessage(getActivity(), "Invalid start amount");
                     } else {
+                        float amt = Float.valueOf(startAmount);
                         SQLiteDatabase mDb = dbHelper.getWritableDatabase();
                         reserveCursor = mDb.rawQuery("select * from " + ReserveTable.TABLE_NAME + " where " + ReserveTable.COLUMN_TYPE + " = ? ;", new String[]{reserve});
                         if (reserveCursor != null && reserveCursor.getCount() == 0)

@@ -27,6 +27,7 @@
         android:layout_below="@id/month_spinner"
         android:layout_marginTop="10dp"
         android:hint="@string/enter_year"
+        android:digits="0123456789"
         android:inputType="number"
         android:textColor="@color/black"
         android:textColorHint="@color/grey" />

@@ -36,6 +36,8 @@ import com.project.pocketexpensemanager.fragments.communication.Display;
 
 import java.util.Calendar;
 
+import static com.project.pocketexpensemanager.utilities.Constants.SEPARATOR;
+
 public class CreateExpense extends Fragment {
     private Display mDisplay;
     private DatabaseHelper dbHelper;
@@ -86,7 +88,7 @@ public class CreateExpense extends Fragment {
 
                     DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                         public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                            String date = String.valueOf(selectedday) + " : " + String.valueOf(selectedmonth + 1) + " : " + String.valueOf(selectedyear);
+                            String date = String.valueOf(selectedday) + SEPARATOR + String.valueOf(selectedmonth + 1) + SEPARATOR + String.valueOf(selectedyear);
                             ((EditText) view.findViewById(R.id.date_text)).setText(mDisplay.parseDate(date));
                         }
                     }, mYear, mMonth, mDay);
@@ -145,8 +147,8 @@ public class CreateExpense extends Fragment {
                 String id = expenseCursor.getString(0);
                 float amt = 0f;
                 for (String payment : mop) {
-                    String reserve = payment.split("-")[0];
-                    String amount = payment.split("-")[1];
+                    String reserve = payment.split(SEPARATOR)[0];
+                    String amount = payment.split(SEPARATOR)[1];
                     amt += Float.valueOf(amount);
                     mDb.execSQL("insert into " + ExpenseAmountTable.TABLE_NAME + " (" +
                                     ExpenseAmountTable.COLUMN_EXPENSE_ID + "," +
@@ -157,8 +159,8 @@ public class CreateExpense extends Fragment {
                 }
 
                 Calendar calendar = Calendar.getInstance();
-                String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + " : " +
-                        String.valueOf(calendar.get(Calendar.MONTH) + 1) + " : " + String.valueOf(calendar.get(Calendar.YEAR)));
+                String currentDate = mDisplay.parseDate(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)) + SEPARATOR +
+                        String.valueOf(calendar.get(Calendar.MONTH) + 1) + SEPARATOR + String.valueOf(calendar.get(Calendar.YEAR)));
                 mDb.execSQL("insert into " + LogTable.TABLE_NAME + " (" +
                                 LogTable.COLUMN_TITLE + "," +
                                 LogTable.COLUMN_DESCRIPTION_MAIN + "," +
@@ -225,7 +227,7 @@ public class CreateExpense extends Fragment {
                         HomeActivity.showMessage(getActivity(),"Enter valid payment");
                         return;
                     }
-                    finalString += reserve + "-" + amount + ", ";
+                    finalString += reserve + SEPARATOR + amount + ", ";
                 }
                 finalString = finalString.substring(0, finalString.length() - 2);
                 if(isValueZero){
