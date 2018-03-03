@@ -330,7 +330,7 @@ public class HomeActivity extends DriveBase implements NavigationView.OnNavigati
             }).addOnFailureListener(this, new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    showMessage(getApplication(), "Failed to create backup file. Retry later");
+                    showMessage(getApplication(), "Failed to update backup file. Retry later");
                 }
             });
         } catch (IllegalArgumentException e){
