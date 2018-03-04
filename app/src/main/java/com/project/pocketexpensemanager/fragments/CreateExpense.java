@@ -179,6 +179,18 @@ public class CreateExpense extends Fragment {
         }
     }
 
+    public View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+            return listView.getAdapter().getView(pos, null, listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
+        }
+    }
+
     private void addDetailedPayment(final View view) {
         AlertDialog.Builder builderSingle = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -213,7 +225,7 @@ public class CreateExpense extends Fragment {
                 String finalString = "";
                 boolean isValueZero = true;
                 for (int i = 0; i < mopCursor.getCount(); i++) {
-                    View child = paymentList.getChildAt(i);
+                    View child = getViewByPosition(i,paymentList);
                     String reserve = ((TextView) child.findViewById(R.id.mop_caption)).getText().toString();
                     String amount = ((EditText) child.findViewById(R.id.mop_amount)).getText().toString();
                     if (amount.equals("")) {
